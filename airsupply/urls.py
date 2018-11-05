@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    #/
-    path('browse/', views.browse, name='browse'),
+    #/main/browse/
+    path('browse/', views.BrowseView.as_view(), name='browse'),
 
 ]

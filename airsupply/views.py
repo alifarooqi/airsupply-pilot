@@ -1,10 +1,12 @@
-from django.shortcuts import render
-from .models import Item, Order
+from django.views import generic
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from .models import Item
 
 
-def browse(request):
-    all_items = Item.objects.all()
-    context = {
-        'all_items': all_items
-    }
-    return render(request, 'clinic-manager/browse.html', context)
+class BrowseView(generic.ListView):
+    template_name = 'clinic-manager/browse.html'
+    context_object_name = 'all_items'
+
+    def get_queryset(self):
+        return Item.objects.all()
+
