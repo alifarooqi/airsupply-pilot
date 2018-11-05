@@ -25,5 +25,3 @@ class Order(models.Model):
     timeOrdered = models.DateTimeField()
     timeDelivered = models.DateTimeField()
     timeDispatched = models.DateTimeField()
-
-

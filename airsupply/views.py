@@ -10,3 +10,18 @@ class BrowseView(generic.ListView):
     def get_queryset(self):
         return Item.objects.all()
 
+
+class CartView(generic.ListView):
+    template_name = 'clinic-manager/cart.html'
+
+
+class OrderView(generic.ListView):
+    template_name = 'clinic-manager/view-orders.html'
+
+
+class DispatchView(generic.ListView):
+    template_name = 'dispatcher/dispatch-queue.html'
+
+
+class PriorityQueueView(generic.ListView):
+    template_name = 'warehouse-personnel/priority-queue.html'
