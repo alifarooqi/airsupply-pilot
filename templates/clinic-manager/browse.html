@@ -129,11 +129,9 @@
 							<h2>Category</h2>
 							<div class="brands-name">
 								<ul class="nav nav-pills nav-stacked">
-									<li><a href="#"> <span class="pull-right">(50)</span>IV Fluids</a></li>
-									<li><a href="javascript:void(0)" class="disabled"> <span class="pull-right">(56)</span>Category 2</a></li>
-									<li><a href="javascript:void(0)" class="disabled"> <span class="pull-right">(27)</span>Category 3</a></li>
-									<li><a href="javascript:void(0)" class="disabled"> <span class="pull-right">(32)</span>Category 4</a></li>
-									<li><a href="javascript:void(0)" class="disabled"> <span class="pull-right">(5)</span>Category 5</a></li>
+                                    {% for category in categories %}
+                                        <li><a href="#"> <span class="pull-right">({{ catSizes|get_item:category }})</span>{{ category.name }}</a></li>
+                                    {% endfor %}
 								</ul>
 							</div>
 						</div><!--/brands_products-->

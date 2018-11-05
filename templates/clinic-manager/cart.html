@@ -100,83 +100,33 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td class="cart_product">
-								<a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
-							</td>
-							<td class="cart_description">
-								<h4><a href="">Product Name</a></h4>
-								<p>Product ID: 1234567</p>
-							</td>
-							<td class="cart_price">
-								<p>1.1kg</p>
-							</td>
-							<td class="cart_quantity">
-								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href=""> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-									<a class="cart_quantity_down" href=""> - </a>
-								</div>
-							</td>
-							<td class="cart_total">
-								<p class="cart_total_price">1.1kg</p>
-							</td>
-							<td class="cart_delete">
-								<a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="cart_product">
-								<a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
-							</td>
-							<td class="cart_description">
-								<h4><a href="">Product Name</a></h4>
-								<p>Product ID: 1234567</p>
-							</td>
-							<td class="cart_price">
-								<p>1.1kg</p>
-							</td>
-							<td class="cart_quantity">
-								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href=""> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-									<a class="cart_quantity_down" href=""> - </a>
-								</div>
-							</td>
-							<td class="cart_total">
-								<p class="cart_total_price">1.1kg</p>
-							</td>
-							<td class="cart_delete">
-								<a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="cart_product">
-								<a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
-							</td>
-							<td class="cart_description">
-								<h4><a href="">Product Name</a></h4>
-								<p>Product ID: 1234567</p>
-							</td>
-							<td class="cart_price">
-								<p>1.1kg</p>
-							</td>
-							<td class="cart_quantity">
-								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href=""> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-									<a class="cart_quantity_down" href=""> - </a>
-								</div>
-							</td>
-							<td class="cart_total">
-								<p class="cart_total_price">1.1kg</p>
-							</td>
-							<td class="cart_delete">
-								<a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-							</td>
-						</tr>
+                        {% for item in all_items %}
+                            <tr>
+                                <td class="cart_product">
+                                    <a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
+                                </td>
+                                <td class="cart_description">
+                                    <h4><a href="">{{ item.description }}</a></h4>
+                                    <p>Product ID: {{ item.id }}</p>
+                                </td>
+                                <td class="cart_price">
+                                    <p>{{ item.weight }}</p>
+                                </td>
+                                <td class="cart_quantity">
+                                    <div class="cart_quantity_button">
+                                        <a class="cart_quantity_up" href=""> + </a>
+                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
+                                        <a class="cart_quantity_down" href=""> - </a>
+                                    </div>
+                                </td>
+                                <td class="cart_total">
+                                    <p class="cart_total_price">{{ runningTotal|get_item:item }}</p>
+                                </td>
+                                <td class="cart_delete">
+                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
 					</tbody>
 				</table>
 			</div>
