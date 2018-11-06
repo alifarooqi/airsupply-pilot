@@ -1,8 +1,10 @@
 from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import render
 from django.template.defaulttags import register
-from .models import Item, User, Category, Order
+from .models import Item, Category, Order, LineItem, Cart
+from django.http import JsonResponse
+
+from django.http import HttpResponse
 
 #debugging:
 import logging
@@ -52,6 +54,10 @@ class CartView(generic.ListView):
 
 class OrderView(generic.ListView):
     template_name = 'clinic-manager/view-orders.html'
+    context_object_name = 'all_orders'
+
+    def get_queryset(self):
+        return Order.objects.all()
 
 
 class DispatchView(generic.ListView):
@@ -62,14 +68,21 @@ class PriorityQueueView(generic.ListView):
     template_name = 'warehouse-personnel/priority-queue.html'
 
 
-class AccountView(UpdateView):
-    model = User
-    fields = []
-
-
-def login(request):
-    return render(request, 'login.html', {})
-
-
 def forgot_password(request):
     return render(request, 'forgot-password.html', {})
+
+
+def cart_add(request):# in first iteration, no clinic manager so we get the one available cart
+    try:
+        item = Item.objects.get(id=request.POST['itemID'])
+        quantity = request.POST['qty']
+    except(KeyError, Item.DoesNotExist):
+        return HttpResponse("error")
+    else:
+        newItem = LineItem.objects.create(item=item, quantity=quantity)
+        cart = Cart.objects.get(status='cart')
+        cart.items.add(newItem)
+        return JsonResponse({'success': True})
+
+
+

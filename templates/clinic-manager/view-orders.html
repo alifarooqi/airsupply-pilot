@@ -92,41 +92,19 @@
 						</tr>
 					</thead>
 					<tbody>
+                        {% for order in all_orders %}
 						<tr>
 							<td class="cart_description">
-								<h4><a href="">Order_1234</a></h4>
+								<h4><a href="">{{ order }}</a></h4>
 							</td>
 							<td class="cart_price">
-								<p>Queued for Processing</p>
+								<p>{{ order.status }}</p>
 							</td>
 							<td class="cart_quantity">
 								<button type="submit" class="btn btn-default">Cancel Order</button>
 							</td>
 						</tr>
-
-						<tr>
-							<td class="cart_description">
-								<h4><a href="">Order_5678</a></h4>
-							</td>
-							<td class="cart_price">
-								<p>Dispatched</p>
-							</td>
-							<td class="cart_quantity">
-								<button type="submit" class="btn btn-default">Order Delivered</button>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="cart_description">
-								<h4><a href="">Order_4321</a></h4>
-							</td>
-							<td class="cart_price">
-								<p>Delivered</p>
-							</td>
-							<td class="cart_quantity">
-								
-							</td>
-						</tr>
+                        {% endfor %}
 					</tbody>
 				</table>
 			</div>

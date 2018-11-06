@@ -1,22 +1,6 @@
 from django.db import models
 
 
-class User(models.Model):
-    role = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
-    password = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.username + " - " + self.role
-
-
-class ClinicManager(User):
-    clinic_name = models.CharField(max_length=100)
-
-
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
@@ -37,14 +21,34 @@ class Item(models.Model):
         return self.description
 
 
+class LineItem(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return str(self.item) + " x"+str(self.quantity)
+
+
 class Order(models.Model):
-    items = models.ManyToManyField(Item)
-    clinic_manager = models.ForeignKey(ClinicManager, on_delete=models.CASCADE)
+    items = models.ManyToManyField(LineItem, blank=True, null=True)
+    #clinicManager = models.ForeignKey(UserForm, on_delete=models.CASCADE)
     status = models.CharField(max_length=100)
     totalWeight = models.DecimalField(max_digits=100, decimal_places=2)
     timeOrdered = models.DateTimeField(blank=True, null=True)
     timeDelivered = models.DateTimeField(blank=True, null=True)
     timeDispatched = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return self.status + " - " #+ self.clinicManager.clinic_name
+
+    class Meta:
+        ordering =['-timeOrdered']
+
+
+class Cart(Order):
+
+    def __str__(self):
+        return str(self.items.count()) + " - " + str(self.totalWeight)
 
     def calculateTotalWeight(self):
         total = 0
@@ -54,6 +58,3 @@ class Order(models.Model):
 
     def addToTotalWeight(self, item):
         self.totalWeight += item.weight
-
-    def __str__(self):
-        return self.status + " - " + self.clinic_manager.clinic_name
