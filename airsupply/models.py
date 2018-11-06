@@ -4,9 +4,12 @@ from datetime import datetime
 
 class Place(models.Model):
     name = models.CharField(max_length=100)
-    latitude = models.DecimalField(max_digits=100, decimal_places=2)
-    longitude = models.DecimalField(max_digits=100, decimal_places=2)
-    altitude = models.DecimalField(max_digits=100, decimal_places=2)
+    latitude = models.DecimalField(max_digits=100, decimal_places=6)
+    longitude = models.DecimalField(max_digits=100, decimal_places=6)
+    altitude = models.IntegerField()
+
+    def __str__(self):
+        return self.name
 
 
 class Category(models.Model):
@@ -39,7 +42,7 @@ class LineItem(models.Model):
 
 class Order(models.Model):
     items = models.ManyToManyField(LineItem, blank=True, null=True)
-    #clinicManager = models.ForeignKey(UserForm, on_delete=models.CASCADE)
+    location = models.ForeignKey(Place, on_delete=models.CASCADE, default=None)
     priority = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
     totalWeight = models.DecimalField(max_digits=100, decimal_places=2)
@@ -62,7 +65,7 @@ class Order(models.Model):
 class CartManager(models.Manager):
     # when clinic manager logs in, create a cart
     def create_cart(self):
-        cart = self.create(priority='none', status='cart', totalWeight=0.0)
+        cart = self.create(priority='none', status='cart', totalWeight=0.0, )
         return cart
 
 
@@ -96,7 +99,7 @@ class Cart(Order):
             self.timeOrdered = datetime.now()
             self.save(update_fields=['priority', 'status', 'timeOrdered'])
             self.delete(keep_parents=True)
-            Cart.objects.create_cart()
+            #Cart.objects.create_cart()
         except KeyError:
             return False
         else:
