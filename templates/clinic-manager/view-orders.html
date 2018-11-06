@@ -93,17 +93,23 @@
 					</thead>
 					<tbody>
                         {% for order in all_orders %}
-						<tr>
-							<td class="cart_description">
-								<h4><a href="">{{ order }}</a></h4>
-							</td>
-							<td class="cart_price">
-								<p>{{ order.status }}</p>
-							</td>
-							<td class="cart_quantity">
-								<button type="submit" class="btn btn-default">Cancel Order</button>
-							</td>
-						</tr>
+                            {% if order.status != 'cart' %}
+                                <tr>
+                                    <td class="cart_description">
+                                        <h4><a href="">{{ order.id }}</a></h4>
+                                    </td>
+                                    <td class="cart_price">
+                                        <p>{{ order.status }}</p>
+                                    </td>
+                                    <td class="cart_quantity">
+                                        {% if order.status == 'Queued for Processing' %}
+                                            <button type="submit" class="btn btn-default">Cancel Order</button>
+                                        {% elif order.status == 'Dispatched' %}
+                                            <button type="submit" class="btn btn-default">Order Delivered</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
 					</tbody>
 				</table>

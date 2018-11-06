@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.template.defaulttags import register
 from .models import Item, Category, Order, LineItem, Cart
 from django.http import JsonResponse
+from django.urls import reverse
 
 from django.http import HttpResponse
 
@@ -44,11 +45,9 @@ class CartView(generic.ListView):
         context = super().get_context_data(**kwargs)
         items = Order.objects.get(status='cart').items.all()
         itemWeights = {}
-        curWeight = 0
         for item in items:
-            itemWeights[item] = item.weight + curWeight
-            curWeight += item.weight
-        context['runningTotal'] = itemWeights
+            itemWeights[item] = item.item.weight * item.quantity
+        context['weights'] = itemWeights
         return context
 
 
@@ -77,12 +76,26 @@ def cart_add(request):# in first iteration, no clinic manager so we get the one 
         item = Item.objects.get(id=request.POST['itemID'])
         quantity = request.POST['qty']
     except(KeyError, Item.DoesNotExist):
-        return HttpResponse("error")
+        return JsonResponse({'success': False, 'error_message': 'Item does not exist'})
     else:
-        newItem = LineItem.objects.create(item=item, quantity=quantity)
         cart = Cart.objects.get(status='cart')
-        cart.items.add(newItem)
+
+        newItem = LineItem()
+        newItem.item = item
+        newItem.quantity = quantity
+        if cart.checkTotalWeight(newItem):
+            newItem.save()
+            cart.addLineItem(newItem)
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error_message': 'Cart weight limit exceeded'})
+
+
+def cart_checkout(request):# in first iteration, no clinic manager so we get the one available cart
+    priority = request.POST['priority']
+
+    cart = Cart.objects.get(status='cart')
+    if cart.checkout(priority):
         return JsonResponse({'success': True})
-
-
-
+    else:
+        return JsonResponse({'success': False})
