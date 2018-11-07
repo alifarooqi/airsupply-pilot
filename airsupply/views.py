@@ -1,7 +1,7 @@
 from django.views import generic
 from django.shortcuts import render
 from django.template.defaulttags import register
-from .models import Item, Category, Order, LineItem, Cart
+from .models import Item, Category, Order, LineItem, Cart, DroneLoad
 from django.http import JsonResponse
 from django.urls import reverse
 
@@ -61,6 +61,22 @@ class OrderView(generic.ListView):
 
 class DispatchView(generic.ListView):
     template_name = 'dispatcher/dispatch-queue.html'
+    context_object_name = 'all_droneloads'
+
+    def get_queryset(self):
+        return DroneLoad.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dLs = DroneLoad.objects.all()
+        dlWeights = {}
+        for dl in dLs:
+            sum = 0.0
+            for orders in dl.orders.all():
+                sum += float(orders.totalWeight)
+            dlWeights[dl] = sum
+        context['dlWeights'] = dlWeights
+        return context
 
 
 class PriorityQueueView(generic.ListView):

@@ -12,6 +12,18 @@ class Place(models.Model):
         return self.name
 
 
+class InterPlaceDistance(models.Model):
+    fromLocation = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='from_place')
+    toLocation = models.ForeignKey(Place, on_delete=models.CASCADE, related_name='to_place')
+    distance = models.DecimalField(max_digits=100, decimal_places=2)
+
+    def __str__(self):
+        return str(self.fromLocation)+" -> "+str(self.toLocation)
+
+    class Meta:
+        unique_together = ("fromLocation", "toLocation")
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
@@ -51,7 +63,7 @@ class Order(models.Model):
     timeDispatched = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.priority + " - " + self.status #+ self.clinicManager.clinic_name
+        return self.priority + " - " + str(self.location) #+ self.clinicManager.clinic_name
 
     class Meta:
         ordering =['-timeOrdered']
@@ -65,7 +77,7 @@ class Order(models.Model):
 class CartManager(models.Manager):
     # when clinic manager logs in, create a cart
     def create_cart(self):
-        cart = self.create(priority='none', status='cart', totalWeight=0.0, )
+        cart = self.create(priority='none', status='Cart', totalWeight=0.0)
         return cart
 
 
@@ -104,3 +116,13 @@ class Cart(Order):
             return False
         else:
             return True
+
+
+class DroneLoad(models.Model):
+    orders = models.ManyToManyField(Order, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.orders.count())+" orders"
+
+    def dispatch(self):
+        pass
