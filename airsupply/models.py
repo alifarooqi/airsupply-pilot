@@ -1,6 +1,10 @@
 from django.db import models
 from datetime import datetime
 
+#debugging:
+import logging
+logger = logging.getLogger(__name__)
+
 
 class Place(models.Model):
     name = models.CharField(max_length=100)
@@ -102,6 +106,7 @@ class Cart(Order):
         for lt in lineItems:
             if lt.item == lineitem.item:
                 lt.quantity += int(lineitem.quantity)
+                lt.save(update_fields=['quantity'])
                 break
         else:
             self.items.add(lineitem)

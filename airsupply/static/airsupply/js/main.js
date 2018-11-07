@@ -44,6 +44,7 @@ var BrowsePage = {
 /*scroll to top*/
 
 $(document).ready(function(){
+
 	BrowsePage.init();
 	$(function () {
 		$.scrollUp({
