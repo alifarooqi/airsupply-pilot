@@ -1,117 +1,10 @@
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>{% block title %}Air Supply - Pilot{% endblock %}</title>
-    {% load staticfiles %}
+{% block navbar %}
+    {% include 'clinic-manager/navbar.html' %}
+{% endblock %}
 
-
-    <link href="{% static 'airsupply/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'airsupply/css/font-awesome.min.css' %}" rel="stylesheet">
-    <link href="{% static 'airsupply/css/prettyPhoto.css' %}" rel="stylesheet">
-    <link href="{% static 'airsupply/css/price-range.css' %}" rel="stylesheet">
-    <link href="{% static 'airsupply/css/animate.css' %}" rel="stylesheet">
-	<link href="{% static 'airsupply/css/main.css' %}" rel="stylesheet">
-	<link href="{% static 'airsupply/css/responsive.css' %}" rel="stylesheet">
-
-    <!--[if lt IE 9]>
-    <script src="js/html5shiv.js"></script>
-    <script src="js/respond.min.js"></script>
-    <![endif]-->
-    <link rel="shortcut icon" href="{% static 'airsupply/images/ico/favicon.ico' %}">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'airsupply/images/ico/apple-touch-icon-144-precomposed.png' %}">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'airsupply/images/ico/apple-touch-icon-114-precomposed.png' %}">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'airsupply/images/ico/apple-touch-icon-72-precomposed.png' %}">
-    <link rel="apple-touch-icon-precomposed" href="{% static 'airsupply/images/ico/apple-touch-icon-57-precomposed.png' %}">
-</head><!--/head-->
-
-<body>
-	<header id="header"><!--header-->
-
-		<div class="header-middle"><!--header-middle-->
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="logo pull-left">
-							<a href="index.html"><img src="{% static 'airsupply/images/home/logo.png' %}" alt="" /></a>
-						</div>
-						<!-- keeping for reference
-						<div class="btn-group pull-right">
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle usa" data-toggle="dropdown">
-									USA
-									<span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a href="#">Canada</a></li>
-									<li><a href="#">UK</a></li>
-								</ul>
-							</div>
-						</div>
-						-->
-					</div>
-					<div class="col-sm-8">
-						<div class="shop-menu pull-right">
-							<ul class="nav navbar-nav">
-								<li><a href="account.html"><i class="fa fa-user"></i> Account</a></li>
-								<li><a href="login.html"><i class="fa fa-sign-out"></i> Logout</a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div><!--/header-middle-->
-	
-		<div class="header-bottom"><!--header-bottom-->
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-9">
-						<div class="navbar-header">
-							<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-								<span class="sr-only">Toggle navigation</span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</button>
-						</div>
-						<div class="mainmenu pull-left">
-							<ul class="nav navbar-nav collapse navbar-collapse">
-								<!-- add in future iteration
-								<li><a href="index.html" class="active">Home</a></li>
-								-->
-								<li><a href="browse.html">Browse</a></li>
-								<li><a href="cart.html">Cart</a></li>
-								<li><a href="view-orders.html">View Orders</a></li>
-								<!-- keeping in case needed
-								<li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                    <ul role="menu" class="sub-menu">
-                                        <li><a href="shop.html">Products</a></li>
-										<li><a href="product-details.html">Product Details</a></li> 
-										<li><a href="checkout.html">Checkout</a></li> 
-										<li><a href="cart.html">Cart</a></li> 
-										<li><a href="login.html">Login</a></li> 
-                                    </ul>
-                                </li>
-                           		-->
-							</ul>
-						</div>
-					</div>
-					<!-- will implement in future iterations
-					<div class="col-sm-3">
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search"/>
-						</div>
-					</div>
-					-->
-				</div>
-			</div>
-		</div><!--/header-bottom-->
-	</header><!--/header-->
-	
+{% block body %}
 	<section>
 		<div class="container">
 			<div class="row">
@@ -120,9 +13,9 @@
 						
 						<div class="brands_products"><!--brands_products-->
 							<h2>Search</h2>
-							<div class="brands-name">
-								<input type="text" name="" />
-							</div>
+							<form class="form-inline md-form form-sm mt-0">
+                              <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="&#xF002; &nbsp; Search for an item..." aria-label="Search" style="font-family:Arial, FontAwesome">
+                            </form>
 						</div><!--/brands_products-->
 
 						<div class="brands_products"><!--brands_products-->
@@ -187,11 +80,4 @@
 	</section>
 	
 
-    <script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/jquery.scrollUp.min.js"></script>
-	<script src="js/price-range.js"></script>
-    <script src="js/jquery.prettyPhoto.js"></script>
-    <script src="js/main.js"></script>
-</body>
-</html>
+{% endblock %}
