@@ -1,5 +1,5 @@
 from django.views import generic
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.defaulttags import register
 from .models import Item, Category, Order, LineItem, Cart, DroneLoad
 from django.http import JsonResponse
@@ -87,7 +87,7 @@ def cart_checkout(request):# in first iteration, no clinic manager so we get the
 
     cart = Cart.objects.get(status='cart')
     if cart.checkout(priority):
-        return JsonResponse({'success': True})
+        return redirect('airsupply:my_orders')
     else:
         return JsonResponse({'success': False})
 
