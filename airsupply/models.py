@@ -73,6 +73,10 @@ class Order(models.Model):
             lt.delete()
         self.delete()
 
+    def updateStatus(self, status):
+        self.status = status
+        self.save(update_fields=['status'])
+
 
 class CartManager(models.Manager):
     # when clinic manager logs in, create a cart
@@ -120,9 +124,15 @@ class Cart(Order):
 
 class DroneLoad(models.Model):
     orders = models.ManyToManyField(Order, blank=True, null=True)
+    statuses = (('TRUE', 'True'), ('FALSE', 'false'))
+    status = models.CharField(max_length=5, choices=statuses, default='FALSE')
 
     def __str__(self):
         return str(self.orders.count())+" orders"
 
     def dispatch(self):
-        pass
+        all_orders = self.orders.all()
+        for order in all_orders:
+            #emailClinicManager
+            order.updateStatus("Dispatched")
+

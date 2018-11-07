@@ -59,34 +59,6 @@ class OrderView(generic.ListView):
         return Order.objects.all()
 
 
-class DispatchView(generic.ListView):
-    template_name = 'dispatcher/dispatch-queue.html'
-    context_object_name = 'all_droneloads'
-
-    def get_queryset(self):
-        return DroneLoad.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        dLs = DroneLoad.objects.all()
-        dlWeights = {}
-        for dl in dLs:
-            sum = 0.0
-            for orders in dl.orders.all():
-                sum += float(orders.totalWeight)
-            dlWeights[dl] = sum
-        context['dlWeights'] = dlWeights
-        return context
-
-
-class PriorityQueueView(generic.ListView):
-    template_name = 'warehouse-personnel/priority-queue.html'
-
-
-def forgot_password(request):
-    return render(request, 'forgot-password.html', {})
-
-
 def cart_add(request):# in first iteration, no clinic manager so we get the one available cart
     try:
         item = Item.objects.get(id=request.POST['itemID'])
@@ -115,3 +87,38 @@ def cart_checkout(request):# in first iteration, no clinic manager so we get the
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'success': False})
+
+
+class DispatchView(generic.ListView):
+    template_name = 'dispatcher/dispatch-queue.html'
+    context_object_name = 'all_droneloads'
+
+    def get_queryset(self):
+        return DroneLoad.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dLs = DroneLoad.objects.all()
+        dlWeights = {}
+        for dl in dLs:
+            sum = 0.0
+            for orders in dl.orders.all():
+                sum += float(orders.totalWeight)
+            dlWeights[dl] = sum
+        context['dlWeights'] = dlWeights
+        return context
+
+
+def dispatch(request, pk):
+    dl = DroneLoad.objects.get(pk=pk)
+    dl.dispatch()
+    return HttpResponse(dl)
+
+
+class PriorityQueueView(generic.ListView):
+    template_name = 'warehouse-personnel/priority-queue.html'
+
+
+def forgot_password(request):
+    return render(request, 'forgot-password.html', {})
+

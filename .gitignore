@@ -4,3 +4,4 @@ venv/
 
 airsupply/migrations/
 
+db.sqlite3
