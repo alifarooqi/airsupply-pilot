@@ -1807,7 +1807,7 @@ h2.title {
 #do_action .total_area, #do_action .chose_area {
   border: 1px solid #E6E4DF;
   color: #696763;
-  padding: 30px 25px 30px 0;
+  padding: 30px;
   margin-bottom: 80px;
 }
 
@@ -2786,4 +2786,16 @@ h2.title {
     border-radius: 10px;
     padding: 2px;
     background: #fe151f;
+}
+
+.order_date{
+  width: 250px;
+}
+
+.order-no, .order_no{
+  text-align: center;
+}
+
+.order_no h4 a{
+  color: #fe151f;
 }
