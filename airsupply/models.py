@@ -129,8 +129,8 @@ class Cart(Order):
 
 class DroneLoad(models.Model):
     orders = models.ManyToManyField(Order, blank=True, null=True)
-    statuses = (('TRUE', 'True'), ('FALSE', 'false'))
-    status = models.CharField(max_length=5, choices=statuses, default='FALSE')
+    statuses = (('TRUE', 'true'), ('FALSE', 'false'))
+    dispatched = models.CharField(max_length=5, choices=statuses, default='FALSE')
 
     def __str__(self):
         return str(self.orders.count())+" orders"
@@ -140,4 +140,5 @@ class DroneLoad(models.Model):
         for order in all_orders:
             #emailClinicManager
             order.updateStatus("Dispatched")
-
+        self.dispatched = 'TRUE'
+        self.save()

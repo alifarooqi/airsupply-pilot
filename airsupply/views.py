@@ -98,7 +98,7 @@ class DispatchView(generic.ListView):
     context_object_name = 'all_droneloads'
 
     def get_queryset(self):
-        return DroneLoad.objects.all()
+        return DroneLoad.objects.exclude(dispatched='TRUE')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -116,7 +116,7 @@ class DispatchView(generic.ListView):
 def dispatch(request, pk):
     dl = DroneLoad.objects.get(pk=pk)
     dl.dispatch()
-    return HttpResponse(dl)
+    return redirect('airsupply:dispatch_view')
 
 
 class PriorityQueueView(generic.ListView):
