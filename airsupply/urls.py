@@ -14,6 +14,6 @@ urlpatterns = [
 
     #dispatcher
     path('dispatch/', views.DispatchView.as_view(), name='dispatch_view'),
-    re_path(r'dispatch/(?P<pk>[0-9]+)/$', views, name='dispatch_drone'),
+    re_path(r'dispatch/(?P<pk>[0-9]+)/$', views.dispatch, name='dispatch_drone'),
 
 ]
