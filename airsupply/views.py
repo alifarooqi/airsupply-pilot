@@ -1,5 +1,5 @@
 from django.views import generic
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.defaulttags import register
 from .models import Item, Category, Order, LineItem, Cart, DroneLoad
 from django.http import JsonResponse
@@ -60,9 +60,12 @@ class OrderView(generic.ListView):
 
 
 def cart_add(request):# in first iteration, no clinic manager so we get the one available cart
+    print(request)
     try:
-        item = Item.objects.get(id=request.POST['itemID'])
-        quantity = request.POST['qty']
+        itemID = request.GET.get('itemid', 0)
+        item = Item.objects.get(pk=itemID)
+        quantity = request.GET.get('qty', 0)
+        logger.warning(quantity)
     except(KeyError, Item.DoesNotExist):
         return JsonResponse({'success': False, 'error_message': 'Item does not exist'})
     else:
@@ -84,7 +87,7 @@ def cart_checkout(request):# in first iteration, no clinic manager so we get the
 
     cart = Cart.objects.get(status='cart')
     if cart.checkout(priority):
-        return JsonResponse({'success': True})
+        return redirect('airsupply:my_orders')
     else:
         return JsonResponse({'success': False})
 
