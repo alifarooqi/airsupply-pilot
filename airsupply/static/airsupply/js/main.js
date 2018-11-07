@@ -30,6 +30,10 @@ var BrowsePage = {
 				if (result.success) {
 					alert("Added to the Cart!");
 				}
+				else if (result.error_message)
+					alert("Error: " + result.error_message);
+				else
+					alert("Unexpected error: Check your cart!")
 			});
 
 			return false;

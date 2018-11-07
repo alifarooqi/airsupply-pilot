@@ -54,10 +54,10 @@
 							</div>
 							<div class="col-sm-7">
 								<span class="product-name">{{ item.description }}</span>
-								<span class="product-description">Category: {{ item.category }}. Weight: {{ item.weight }}</span>
+								<span class="product-description">Category: {{ item.category }}.<br/>Weight: {{ item.weight }}kg</span>
 							</div>
 							<div class="col-sm-2"  style="text-align: center; padding-top: 20px;">
-                                <form action="{% url 'airsupply:cart_add' %}" method="post">
+                                <form action="#" method="post">
                                     {% csrf_token %}
                                     Qty:
                                     <div class="cart_quantity_button">
