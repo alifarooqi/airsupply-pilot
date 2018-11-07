@@ -2,6 +2,10 @@ from django.db import models
 from datetime import datetime
 
 
+class InterPlaceDistance():
+    pass
+
+
 class Place(models.Model):
     name = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=100, decimal_places=6)
@@ -65,7 +69,7 @@ class Order(models.Model):
 class CartManager(models.Manager):
     # when clinic manager logs in, create a cart
     def create_cart(self):
-        cart = self.create(priority='none', status='cart', totalWeight=0.0, )
+        cart = self.create(priority='none', status='Cart', totalWeight=0.0)
         return cart
 
 
