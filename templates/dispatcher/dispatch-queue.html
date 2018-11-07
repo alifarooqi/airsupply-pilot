@@ -1,52 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Cart | E-Shopper</title>
-    <link href="../../airsupply/static/airsupply/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../../airsupply/static/airsupply/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../../airsupply/static/airsupply/css/prettyPhoto.css" rel="stylesheet">
-    <link href="../../airsupply/static/airsupply/css/price-range.css" rel="stylesheet">
-    <link href="../../airsupply/static/airsupply/css/animate.css" rel="stylesheet">
-	<link href="../../airsupply/static/airsupply/css/main.css" rel="stylesheet">
-	<link href="../../airsupply/static/airsupply/css/responsive.css" rel="stylesheet">
-    <!--[if lt IE 9]>
-    <script src="js/html5shiv.js"></script>
-    <script src="js/respond.min.js"></script>
-    <![endif]-->       
-    <link rel="shortcut icon" href="../../airsupply/static/airsupply/images/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../airsupply/static/airsupply/images/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../airsupply/static/airsupply/images/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../airsupply/static/airsupply/images/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="../../airsupply/static/airsupply/images/ico/apple-touch-icon-57-precomposed.png">
-</head><!--/head-->
+{% extends 'base.html' %}
 
-<body>
-	<header id="header"><!--header-->
-		
-		<div class="header-middle"><!--header-middle-->
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="logo pull-left">
-							<a href="index.html"><img src="../../airsupply/static/airsupply/images/home/logo.png" alt="" /></a>
-						</div>
-					</div>
-					<div class="col-sm-8">
-						<div class="shop-menu pull-right">
-							<ul class="nav navbar-nav">
-								<li><a href="account.html"><i class="fa fa-user"></i> Account</a></li>
-								<li><a href="login.html"><i class="fa fa-sign-out"></i> Logout</a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div><!--/header-middle-->
-	
+{% block body %}
 		<div class="header-bottom"><!--header-bottom-->
 			<div class="container">
 				<div class="row">
@@ -94,7 +48,9 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="top_drone">
+
+                    {% for droneload in all_droneloads %}
+                        <tr {% if forloop.first %} class="top_drone" {% endif %}>
 							<td class="drone_col verticalColumn">
 								<p class="drone_id">
 									123456
@@ -102,28 +58,19 @@
 							</td>
 							<td class="cart_description orders_col">
 								<h4>Orders to be loaded:</h4>
-								<div class="row">
-									<div class="col-xs-1"><br>1.</div>
-									<div class="col-xs-8 order_wrapper"><b>123456</b><br>Jockey Club Clinic</div>
-									<div class="col-xs-2 weight_col"><br>3kg</div>
-								</div>
+                                {% for order in droneload.orders.all %}
+                                    <div class="row">
+                                        <div class="col-xs-1"><br>{{ forloop.counter }}.</div>
+                                        <div class="col-xs-8 order_wrapper"><b>{{ order.id }}</b><br>{{ order.location.name }}</div>
+                                        <div class="col-xs-2 weight_col"><br>{{ order.totalWeight }}kg</div>
+                                    </div>
+                                {% endfor %}
+                                    <div class="row">
+                                        <div class="col-xs-8"></div>
+                                        <div class="col-xs-1 plus_sign">+</div>
+                                        <div class="col-xs-2 weight_col total_weight">{{ dlWeights|get_item:droneload }}kg</div>
+                                    </div>
 
-								<div class="row">
-									<div class="col-xs-1"><br>2.</div>
-									<div class="col-xs-8 order_wrapper"><b>665544</b><br>Clinic No 2</div>
-									<div class="col-xs-2 weight_col"><br>4kg</div>
-								</div>
-
-								<div class="row">
-									<div class="col-xs-1"><br>3.</div>
-									<div class="col-xs-8 order_wrapper"><b>113346</b><br>Another Clinic</div>
-									<div class="col-xs-2 weight_col"><br>5.5kg</div>
-								</div>
-								<div class="row">
-									<div class="col-xs-8"></div>
-									<div class="col-xs-1 plus_sign">+</div>
-									<div class="col-xs-2 weight_col total_weight">12.5kg</div>
-								</div>
 							</td>
 							<!--<td class="cart_price weight_col">
 								<h4></h4>
@@ -135,9 +82,13 @@
 							</td>-->
 							<td class="cart_quantity dispatch_col">
 								<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-download"></i> Downlaod Itinerary</a>
-								<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-check"></i> Dispatch Drone</a>
+								<a href="{% url 'airsupply:dispatch_drone' droneload.id %}" class="btn btn-default add-to-cart"><i class="fa fa-check"></i> Dispatch Drone</a>
 							</td>
 						</tr>
+                    {% endfor %}
+
+
+
 						<tr>
 							<td class="drone_col verticalColumn">
 								<p class="drone_id">
@@ -235,10 +186,5 @@
 	</div>
 
 
-    <script src="js/jquery.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/jquery.scrollUp.min.js"></script>
-    <script src="js/jquery.prettyPhoto.js"></script>
-    <script src="js/main.js"></script>
-</body>
-</html>
+
+{% endblock %}
