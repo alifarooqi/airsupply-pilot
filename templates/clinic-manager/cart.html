@@ -106,21 +106,21 @@
                                     <a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
                                 </td>
                                 <td class="cart_description">
-                                    <h4><a href="">{{ item.description }}</a></h4>
-                                    <p>Product ID: {{ item.id }}</p>
+                                    <h4><a href="">{{ item.item.description }}</a></h4>
+                                    <p>Product ID: {{ item.item.id }}</p>
                                 </td>
                                 <td class="cart_price">
-                                    <p>{{ item.weight }}</p>
+                                    <p>{{ item.item.weight }}</p>
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
                                         <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
+                                        <input class="cart_quantity_input" type="text" name="quantity" value="{{ item.quantity }}" autocomplete="off" size="2">
                                         <a class="cart_quantity_down" href=""> - </a>
                                     </div>
                                 </td>
                                 <td class="cart_total">
-                                    <p class="cart_total_price">{{ runningTotal|get_item:item }}</p>
+                                    <p class="cart_total_price">{{ weights|get_item:item }}</p>
                                 </td>
                                 <td class="cart_delete">
                                     <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
@@ -135,12 +135,15 @@
 		<section id="do_action" class="col-sm-3">
 				<div class="total_area">
 					<span style="float:left;">Priority:</span>
-					<select>
-						<option value="volvo">High</option>
-						<option value="saab">Middle</option>
-						<option value="mercedes">Low</option>
+					<select name="priority" form="checkoutForm">
+						<option value="High">High</option>
+						<option value="Medium">Medium</option>
+						<option value="Low">Low</option>
 					</select>
-
+                    <form action="{% url 'airsupply:cart_checkout' %}" method="post" id="checkoutForm">
+                        {% csrf_token %}
+                        <input type="submit" value="Checkout Cart">
+                    </form>
 					<a class="btn btn-default check_out" href="">Check Out Order</a>
 				</div>
 			

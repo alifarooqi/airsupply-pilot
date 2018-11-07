@@ -57,13 +57,18 @@
 								<span class="product-description">Category: {{ item.category }}. Weight: {{ item.weight }}</span>
 							</div>
 							<div class="col-sm-2"  style="text-align: center; padding-top: 20px;">
-								Qty:
-								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href=""> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-									<a class="cart_quantity_down" href=""> - </a>
-								</div>
-								<a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                                <form action="{% url 'airsupply:cart_add' %}" method="post">
+                                    {% csrf_token %}
+                                    Qty:
+                                    <div class="cart_quantity_button">
+                                        <a class="cart_quantity_up" href=""> + </a>
+                                        <input class="cart_quantity_input" type="number" name="qty" value="1" autocomplete="off" size="2">
+                                        <a class="cart_quantity_down" href=""> - </a>
+                                    </div>
+                                    <input type="hidden" name="itemID" value="{{ item.id }}">
+                                    <input type="submit" value="Add to cart">
+                                    <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+                                </form>
 							</div>
 						</div>
                         {% endfor %}
