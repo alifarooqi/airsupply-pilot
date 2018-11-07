@@ -38,6 +38,8 @@
                                     <td class="order_cancel">
                                         {% if order.status == 'Queued for Processing' %}
                                             <button type="submit" class="btn btn-default">Cancel Order</button>
+                                        {% elif order.status == 'Dispatched' %}
+                                            <button type="submit" class="btn btn-default">Received Order</button>
                                         {% endif %}
                                     </td>
                                     <td class="order_date">
