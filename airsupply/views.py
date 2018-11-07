@@ -72,9 +72,12 @@ def forgot_password(request):
 
 
 def cart_add(request):# in first iteration, no clinic manager so we get the one available cart
+    print(request)
     try:
-        item = Item.objects.get(id=request.POST['itemID'])
-        quantity = request.POST['qty']
+        itemID = request.GET.get('itemid', 0)
+        item = Item.objects.get(pk=itemID)
+        quantity = request.GET.get('qty', 0)
+        logger.warning(quantity)
     except(KeyError, Item.DoesNotExist):
         return JsonResponse({'success': False, 'error_message': 'Item does not exist'})
     else:

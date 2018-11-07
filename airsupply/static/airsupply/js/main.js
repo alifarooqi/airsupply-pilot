@@ -4,11 +4,43 @@
 
 	var RGBChange = function() {
 	  $('#RGB').css('background', 'rgb('+r.getValue()+','+g.getValue()+','+b.getValue()+')')
-	};	
-		
+	};
+
+var BrowsePage = {
+	init: function() {
+		this.$container = $('.features_items');
+		this.render();
+		this.bindEvents();
+	},
+
+	render: function() {
+
+	},
+
+	bindEvents: function() {
+		$('.add-to-cart', this.$container).on('click', function(e) {
+			e.preventDefault();
+			var self = $(this);
+			var qty = $(this).parents('form:first')[0][1].value;
+            var itemID = $(this).parents('form:first')[0][2].value;
+            var url = '../cart/add/?itemid=' + itemID + '&qty=' + qty;
+            console.log(url, itemID, qty);
+			$.getJSON(url, function(result) {
+				console.log(result)
+				if (result.success) {
+					alert("Added to the Cart!");
+				}
+			});
+
+			return false;
+		});
+	}
+};
+
 /*scroll to top*/
 
 $(document).ready(function(){
+	BrowsePage.init();
 	$(function () {
 		$.scrollUp({
 	        scrollName: 'scrollUp', // Element ID
