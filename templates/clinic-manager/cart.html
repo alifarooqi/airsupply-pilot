@@ -36,7 +36,7 @@
                         {% for item in all_items %}
                             <tr>
                                 <td class="cart_product">
-                                    <a href=""><img src="../../airsupply/static/airsupply/images/placeholder.png" alt=""></a>
+                                    <a href=""><img src="{{ item.item.imageUrl }}" alt=""></a>
                                 </td>
                                 <td class="cart_description">
                                     <h4><a href="">{{ item.item.description }}</a></h4>
@@ -67,16 +67,22 @@
 
 		<section id="do_action" class="col-sm-3">
 				<div class="total_area">
-					<span style="float:left;">Priority:</span>
-					<select name="priority" form="checkoutForm">
-						<option value="High">High</option>
-						<option value="Medium">Medium</option>
-						<option value="Low">Low</option>
-					</select>
-                    <form action="{% url 'airsupply:cart_checkout' %}" method="post" id="checkoutForm">
-                        {% csrf_token %}
-                        <input class="btn btn-default check_out" type="submit" value="Checkout Cart">
-                    </form>
+                    {% if ordered == 'FALSE' %}
+					    <span style="float:left;">Priority:</span>
+                        <select name="priority" form="checkoutForm">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                        <p>Total Weight: {{ totalWeight }}</p>
+                        <form action="{% url 'airsupply:cart_checkout' %}" method="post" id="checkoutForm">
+                            {% csrf_token %}
+                            <input class="btn btn-default check_out" type="submit" value="Checkout Cart">
+                        </form>
+                    {% else %}
+                        <span style="float:left;">Priority: {{ priority }}</span><br>
+                        <p>Total Weight: {{ totalWeight }}</p>
+                    {% endif %}
 				</div>
 
 

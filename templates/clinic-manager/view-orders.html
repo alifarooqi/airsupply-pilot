@@ -30,7 +30,7 @@
                             {% if order.status != 'cart' %}
                                 <tr>
                                     <td class="order_no">
-                                        <h4><a href="">00000{{ order.id }}</a></h4>
+                                        <h4><a href="{% url 'airsupply:view_order_details' order.id %}">00000{{ order.id }}</a></h4>
                                     </td>
                                     <td class="order_status">
                                         <p>{{ order.status }}</p>
