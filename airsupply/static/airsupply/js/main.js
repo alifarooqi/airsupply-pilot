@@ -41,11 +41,31 @@ var BrowsePage = {
 	}
 };
 
+let TogglePriorityQueue = {
+    init: function() {
+        // $(".item-details").find("ol").hide();
+		this.bindEvents();
+	},
+    bindEvents: function(){
+        $("#priority-list-table").click(function(event) {
+            console.log("Clicked!")
+            let $target = $(event.target);
+            if ( $target.closest("td").attr("colspan") > 1 ) {
+                $target.slideUp();
+            } else {
+                $target.closest("tr").next().find("ol").slideToggle();
+            }
+        });
+    }
+}
+
+
 /*scroll to top*/
 
 $(document).ready(function(){
 
 	BrowsePage.init();
+	TogglePriorityQueue.init();
 	$(function () {
 		$.scrollUp({
 	        scrollName: 'scrollUp', // Element ID

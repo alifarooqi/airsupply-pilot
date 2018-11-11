@@ -119,10 +119,13 @@ def dispatch(request, pk):
     return redirect('airsupply:dispatch_view')
 
 
-class PriorityQueueView(generic.ListView):
-    template_name = 'warehouse-personnel/priority-queue.html'
-
-
 def forgot_password(request):
     return render(request, 'forgot-password.html', {})
 
+
+class PriorityQueueView(generic.ListView):
+    template_name = 'warehouse-personnel/priority-queue.html'
+    context_object_name = 'all_orders'
+
+    def get_queryset(self):
+        return Order.objects.filter(status="Queued for Processing")

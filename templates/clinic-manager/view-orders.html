@@ -27,7 +27,7 @@
 					</thead>
 					<tbody>
                         {% for order in all_orders %}
-                            {% if order.status != 'cart' %}
+                            {% if order.status != 'cart' %} {% comment %}TODO Better to exclude carts in get querry (in views){% endcomment %}
                                 <tr>
                                     <td class="order_no">
                                         <h4><a href="">00000{{ order.id }}</a></h4>

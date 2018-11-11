@@ -16,4 +16,7 @@ urlpatterns = [
     path('dispatch/', views.DispatchView.as_view(), name='dispatch_view'),
     re_path(r'dispatch/(?P<pk>[0-9]+)/$', views.dispatch, name='dispatch_drone'),
 
+    #warehouse personnel
+    re_path(r'priority_queue/$', views.PriorityQueueView.as_view(), name='priority_queue'),
+
 ]
