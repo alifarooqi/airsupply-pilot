@@ -13,7 +13,7 @@ class Place(models.Model):
     altitude = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ": "+self.name
 
 
 class InterPlaceDistance(models.Model):
@@ -22,7 +22,7 @@ class InterPlaceDistance(models.Model):
     distance = models.DecimalField(max_digits=100, decimal_places=2)
 
     def __str__(self):
-        return str(self.fromLocation)+" -> "+str(self.toLocation)
+        return str(self.id) + ": "+str(self.fromLocation)+" -> "+str(self.toLocation)
 
     class Meta:
         unique_together = ("fromLocation", "toLocation")
@@ -32,7 +32,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ": "+self.name
 
     class Meta:
         verbose_name_plural = "categories"
@@ -45,7 +45,7 @@ class Item(models.Model):
     imageUrl = models.CharField(max_length=250)
 
     def __str__(self):
-        return self.description
+        return str(self.id) + ": "+self.description
 
 
 class LineItem(models.Model):
@@ -53,39 +53,72 @@ class LineItem(models.Model):
     quantity = models.IntegerField()
 
     def __str__(self):
-        return str(self.item) + " x"+str(self.quantity)
+        return str(self.id) + ": "+str(self.item) + " x"+str(self.quantity)
+
+
+class OrderManager(models.Manager):
+    def preferred_order(self, *args, **kwargs):
+        qs = self.get_queryset().filter(*args, **kwargs)
+        qs = qs.annotate(
+            custom_order=models.Case(
+                models.When(status='High', then=models.Value(0)),
+                models.When(status='Medium', then=models.Value(1)),
+                models.When(status='Low', then=models.Value(2)),
+                default=models.Value(3),
+                output_field=models.IntegerField(), )
+        ).order_by('custom_order', '-timeOrdered')
+        return qs
 
 
 class Order(models.Model):
+    HIGH = "High"
+    MEDIUM = "Medium"
+    LOW = "Low"
+    NONE = "None"
+    prioList = ((HIGH, HIGH), (MEDIUM, MEDIUM), (LOW, LOW), (NONE, NONE))
+
+    QP = "Queued for Processing"
+    PW = "Processing by Warehouse"
+    QD = "Queued for Dispatch"
+    DIS = "Dispatched"
+    DEL = "Delivered"
+    CART = "Cart"
+    statusList = ((QP, QP), (PW, PW), (QD, QD), (DIS, DIS), (DEL, DEL), (CART, CART))
+
+    objects = OrderManager()
+
     items = models.ManyToManyField(LineItem, blank=True, null=True)
     location = models.ForeignKey(Place, on_delete=models.CASCADE, default=None)
-    priority = models.CharField(max_length=100)
-    status = models.CharField(max_length=100)
+    priority = models.CharField(max_length=100, choices=prioList)
+    status = models.CharField(max_length=100, choices=statusList)
     totalWeight = models.DecimalField(max_digits=100, decimal_places=2)
     timeOrdered = models.DateTimeField(blank=True, null=True)
     timeDelivered = models.DateTimeField(blank=True, null=True)
     timeDispatched = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.priority + " - " + str(self.location) #+ self.clinicManager.clinic_name
-
-    class Meta:
-        ordering =['-timeOrdered']
+        return str(self.id) + ": "+self.priority + " - " + str(self.location) #+ self.clinicManager.clinic_name
 
     def delete_order(self):
         for lt in self.items:
             lt.delete()
         self.delete()
 
-    def updateStatus(self, status):
+    def update_status(self, status):
+        if status == "Dispatched":
+            self.timeDispatched = datetime.now()
+        elif status == "Queued for Processing":
+            self.timeOrdered = datetime.now()
         self.status = status
-        self.save(update_fields=['status'])
+        self.save()
 
 
 class CartManager(models.Manager):
-    # when clinic manager logs in, create a cart
+    # when clinic manager logs in, create a cart. ie. when browser is reached. but right now no CM so no linking to
+    # correct location. right now its linking to Mui Wo
     def create_cart(self):
-        cart = self.create(priority='none', status='Cart', totalWeight=0.0)
+        cart = self.create(priority=Order.NONE, status=Order.CART, totalWeight=0.0, location=Place.objects.get(id=4))
+        cart.save()
         return cart
 
 
@@ -93,7 +126,7 @@ class Cart(Order):
     objects = CartManager()
 
     def __str__(self):
-        return str(self.items.count()) + " - " + str(self.totalWeight)
+        return str(self.id) + ": "+str(self.items.count()) + " - " + str(self.totalWeight)
 
     def checkTotalWeight(self, lineitem):
         if float(self.totalWeight) + int(lineitem.quantity) * float(lineitem.item.weight) > 23.8:
@@ -116,11 +149,10 @@ class Cart(Order):
     def checkout(self, priority):
         try:
             self.priority = priority
-            self.status = 'Queued for Processing'
-            self.timeOrdered = datetime.now()
-            self.save(update_fields=['priority', 'status', 'timeOrdered'])
+            self.update_status("Queued for Processing")
+            self.save(update_fields=['priority'])
             self.delete(keep_parents=True)
-            #Cart.objects.create_cart()
+            Cart.objects.create_cart()
         except KeyError:
             return False
         else:
@@ -128,17 +160,20 @@ class Cart(Order):
 
 
 class DroneLoad(models.Model):
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+    statusList = ((TRUE, 'True'), (FALSE, 'False'))
+
     orders = models.ManyToManyField(Order, blank=True, null=True)
-    statuses = (('TRUE', 'true'), ('FALSE', 'false'))
-    dispatched = models.CharField(max_length=5, choices=statuses, default='FALSE')
+    dispatched = models.CharField(max_length=5, choices=statusList, default=FALSE)
 
     def __str__(self):
-        return str(self.orders.count())+" orders"
+        return str(self.id) + ": "+str(self.orders.count())+" orders"
 
     def dispatch(self):
         all_orders = self.orders.all()
         for order in all_orders:
             #emailClinicManager
-            order.updateStatus("Dispatched")
-        self.dispatched = 'TRUE'
+            order.update_status("Dispatched")
+        self.dispatched = self.TRUE
         self.save()
