@@ -178,4 +178,17 @@ class PriorityQueueView(generic.ListView):
     context_object_name = 'all_orders'
 
     def get_queryset(self):
-        return Order.objects.filter(status="Queued for Processing")
+        order = {
+            "High": 1,
+            "Medium": 2,
+            "Low": 3
+        }
+        orderedList = sorted(Order.objects.filter(status="Queued for Processing"), key=lambda n: (order[n.priority], n.timeOrdered))
+        return orderedList
+
+
+def order_processed(request, pk):
+    logger.error("Removing Order!!!")
+    order = Order.objects.get(pk=pk)
+    order.update_status("Queued for Dispatch")
+    return redirect('airsupply:priority_queue')

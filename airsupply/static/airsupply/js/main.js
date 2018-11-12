@@ -43,17 +43,17 @@ var BrowsePage = {
 
 let TogglePriorityQueue = {
     init: function() {
-        // $(".item-details").find("ol").hide();
+        $(".item-details").find(".toggleWrapper").hide();
 		this.bindEvents();
 	},
     bindEvents: function(){
         $("#priority-list-table").click(function(event) {
-            console.log("Clicked!")
             let $target = $(event.target);
-            if ( $target.closest("td").attr("colspan") > 1 ) {
-                $target.slideUp();
+            if ( $target.closest("td").attr("colspan") > 1  || $target.prop("tagName") == "A") {
+                // $target.slideUp();
             } else {
-                $target.closest("tr").next().find("ol").slideToggle();
+            	$target.closest("tr").find(".expandCollapseIcon").children().first().toggleClass(" glyphicon-minus-sign")
+                $target.closest("tr").next().find(".toggleWrapper").slideToggle();
             }
         });
     }
