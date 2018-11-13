@@ -25,7 +25,12 @@ class BrowseView(generic.ListView):
         Cart.objects.create_cart()
 
     def get_queryset(self):
-        return Item.objects.all()
+        if self.kwargs.get('catID'):
+            return Item.objects.filter(category=Category.objects.get(id=self.kwargs.get('catID')))
+        elif self.request.GET.get('itemDesc'):
+            return Item.objects.filter(description__contains=self.request.GET.get('itemDesc'))
+        else:
+            return Item.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -130,11 +135,11 @@ class DispatchView(generic.ListView):
     context_object_name = 'all_droneloads'
 
     def get_queryset(self):
-        return DroneLoad.objects.exclude(dispatched='TRUE')
+        return DroneLoad.objects.exclude(dispatched=DroneLoad.TRUE)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dLs = DroneLoad.objects.all()
+        dLs = DroneLoad.objects.exclude(dispatched=DroneLoad.TRUE)
         dlWeights = {}
         for dl in dLs:
             sum = 0.0
@@ -155,10 +160,6 @@ def get_itinerary(request, pk):
     writer.writerow(['22.236040', '113.947882', '1'])
     writer.writerow(['22.265040', '113.995182', '10'])
     writer.writerow(['22.170257', '114.131376', '161'])
-
-
-
-
 
     return response
 

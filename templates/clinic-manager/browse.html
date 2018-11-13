@@ -13,8 +13,8 @@
 						
 						<div class="brands_products"><!--brands_products-->
 							<h2>Search</h2>
-							<form class="form-inline md-form form-sm mt-0">
-                              <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="&#xF002; &nbsp; Search for an item..." aria-label="Search" style="font-family:Arial, FontAwesome">
+							<form class="form-inline md-form form-sm mt-0" action="{% url 'airsupply:browse' %}" method="get">
+                              <input class="form-control form-control-sm ml-3 w-75" type="text" name="itemDesc" placeholder="&#xF002; &nbsp; Search for an item..." aria-label="Search" style="font-family:Arial, FontAwesome">
                             </form>
 						</div><!--/brands_products-->
 
@@ -23,7 +23,7 @@
 							<div class="brands-name">
 								<ul class="nav nav-pills nav-stacked">
                                     {% for category in categories %}
-                                        <li><a href="#"> <span class="pull-right">({{ catSizes|get_item:category }})</span>{{ category.name }}</a></li>
+                                        <li><a href="{% url 'airsupply:browse_cat' category.id %}"> <span class="pull-right">({{ catSizes|get_item:category }})</span>{{ category.name }}</a></li>
                                     {% endfor %}
 								</ul>
 							</div>

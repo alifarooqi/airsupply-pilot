@@ -7,6 +7,7 @@ urlpatterns = [
 
     #clinic manager
     path('browse/', views.BrowseView.as_view(), name='browse'),
+    re_path(r'browse/(?P<catID>[0-9]+)/$', views.BrowseView.as_view(), name='browse_cat'),
     path('cart/', views.CartView.as_view(), name='cart'),
     path('my_orders/', views.OrderView.as_view(), name='my_orders'),
     path('cart/add/', views.cart_add, name='cart_add'),  # Change main.js too if URL is changed

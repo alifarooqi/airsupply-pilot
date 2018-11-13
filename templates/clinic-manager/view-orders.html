@@ -27,26 +27,24 @@
 					</thead>
 					<tbody>
                         {% for order in all_orders %}
-                            {% if order.status != 'cart' %}
-                                <tr>
-                                    <td class="order_no">
-                                        <h4><a href="{% url 'airsupply:view_order_details' order.id %}">00000{{ order.id }}</a></h4>
-                                    </td>
-                                    <td class="order_status">
-                                        <p>{{ order.status }}</p>
-                                    </td>
-                                    <td class="order_cancel">
-                                        {% if order.status == 'Queued for Processing' %}
-                                            <button type="submit" class="btn btn-default">Cancel Order</button>
-                                        {% elif order.status == 'Dispatched' %}
-                                            <button type="submit" class="btn btn-default">Received Order</button>
-                                        {% endif %}
-                                    </td>
-                                    <td class="order_date">
-                                        <p>{{ order.timeOrdered }}</p>
-                                    </td>
-                                </tr>
-                            {% endif %}
+                            <tr>
+                                <td class="order_no">
+                                    <h4><a href="{% url 'airsupply:view_order_details' order.id %}">00000{{ order.id }}</a></h4>
+                                </td>
+                                <td class="order_status">
+                                    <p>{{ order.status }}</p>
+                                </td>
+                                <td class="order_cancel">
+                                    {% if order.status == 'Queued for Processing' %}
+                                        <button type="submit" class="btn btn-default">Cancel Order</button>
+                                    {% elif order.status == 'Dispatched' %}
+                                        <button type="submit" class="btn btn-default">Received Order</button>
+                                    {% endif %}
+                                </td>
+                                <td class="order_date">
+                                    <p>{{ order.timeOrdered }}</p>
+                                </td>
+                            </tr>
                         {% endfor %}
 					</tbody>
 				</table>
