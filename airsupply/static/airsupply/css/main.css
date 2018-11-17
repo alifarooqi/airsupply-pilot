@@ -2799,3 +2799,23 @@ h2.title {
 .order_no h4 a{
   color: #fe151f;
 }
+
+.item-details{
+  padding: 10px 50px !important;
+}
+
+.itemTitle{
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.item-details ol li{
+  padding-left: 0px;
+}
+
+.expandCollapseIcon{
+  text-align: center;
+}
+.expandCollapseIcon:hover{
+  color: #fe151f;
+}

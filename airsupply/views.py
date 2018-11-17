@@ -170,10 +170,26 @@ def dispatch(request, pk):
     return redirect('airsupply:dispatch_view')
 
 
-class PriorityQueueView(generic.ListView):
-    template_name = 'warehouse-personnel/priority-queue.html'
-
-
 def forgot_password(request):
     return render(request, 'forgot-password.html', {})
 
+
+class PriorityQueueView(generic.ListView):
+    template_name = 'warehouse-personnel/priority-queue.html'
+    context_object_name = 'all_orders'
+
+    def get_queryset(self):
+        order = {
+            "High": 1,
+            "Medium": 2,
+            "Low": 3
+        }
+        orderedList = sorted(Order.objects.filter(status="Queued for Processing"), key=lambda n: (order[n.priority], n.timeOrdered))
+        return orderedList
+
+
+def order_processed(request, pk):
+    logger.error("Removing Order!!!")
+    order = Order.objects.get(pk=pk)
+    order.update_status("Queued for Dispatch")
+    return redirect('airsupply:priority_queue')
