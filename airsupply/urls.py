@@ -27,6 +27,7 @@ urlpatterns = [
 
     #warehouse personnel
     re_path(r'priority_queue/$', views.PriorityQueueView.as_view(), name='priority_queue'),
-    re_path(r'priority_queue/(?P<pk>[0-9]+)/$', views.order_processed, name='order_processed'),
+    re_path(r'priority_queue/1/(?P<pk>[0-9]+)/$', views.processing_order, name='order_processed'),
+    re_path(r'priority_queue/2/(?P<pk>[0-9]+)/$', views.order_processed, name='order_processed'),
 
 ]

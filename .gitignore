@@ -1,11 +1,2 @@
-.idea/
-
-venv/
-
-airsupply/migrations/
 
 db.sqlite3
-
-airsupply/__pycache__/
-
-*.pyc
