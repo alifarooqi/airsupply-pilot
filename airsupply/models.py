@@ -179,3 +179,76 @@ class DroneLoad(models.Model):
         self.dispatched = self.TRUE
         self.save()
 
+    def get_itinerary(self):
+
+        def convert2string(places,placeDict):
+            string = ""
+            for i,place in enumerate(places):
+                letter = chr(ord("a")+i)
+                placeDict[letter] = place
+                string = string + letter
+            print("This is the converted string ",string)
+            return string
+
+        def string2Names(string,placeDict):
+            places = []
+            for letter in string:
+                places.append(placeDict[letter].name)
+            return places
+
+        def toString(List):
+            return ''.join(List)
+
+        def permute(a, l, r, perms = []):
+            if l==r:
+                perms.append(toString(a))
+            else:
+                for i in range(l,r+1):
+                    a[l], a[i] = a[i], a[l]
+                    permute(a, l+1, r, perms)
+                    a[l], a[i] = a[i], a[l] # backtrack
+
+        def calcDistance(l1,l2):
+            print(l1,l2)
+            distance = InterPlaceDistance.objects.filter(fromLocation=l1,toLocation=l2)
+            if not distance:
+                distance =  InterPlaceDistance.objects.filter(fromLocation=l2,toLocation=l1)
+            print(distance)
+
+            return distance[0].distance
+
+        def minDistance(perms,p,placeDict):
+            minimum = float("inf")
+            path = ""
+            for perm in perms:
+                totalDistance = 0
+                for i in range(0,len(perm)):
+                    if i == 0:
+                        totalDistance += calcDistance(p,placeDict[perm[i]])
+                    elif i == (len(perm)-1):
+                        totalDistance += calcDistance(placeDict[perm[i]],p)
+                    else:
+                        totalDistance += calcDistance(placeDict[perm[i]],placeDict[perm[i+1]])
+                if totalDistance < minimum :
+                    minimum = totalDistance
+                path = perm
+            return path
+
+        placeDict = {}
+        perms = []
+        orders = self.orders.all()
+        places = []
+        newPlaces = []
+        p = Place.objects.get(name="Queen Mary Hospital Drone Post")
+        for order in orders:
+            places.append(order.location)
+        string = convert2string(places,placeDict)
+        permute(string,0,len(string)-1,perms)
+        path = minDistance(perms,p,placeDict)
+        names = string2Names(path,placeDict)
+        for name in names:
+            for place in places:
+                if place.name == name:
+                    newPlaces.append(place)
+        newPlaces.append(p)
+        return newPlaces
