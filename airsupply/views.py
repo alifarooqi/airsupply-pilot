@@ -147,27 +147,20 @@ class DispatchView(generic.ListView):
 
 def get_itinerary(request, pk):
     # Create the HttpResponse object with the appropriate CSV header.
+    dl = DroneLoad.objects.get(pk=pk)
+    places = dl.get_itinerary()
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="itinerary_005.csv"'
     writer = csv.writer(response)
-    writer.writerow(['22.266040', '113.997882', '17'])
-    writer.writerow(['22.265040', '113.927482', '5'])
-    writer.writerow(['22.236040', '113.947882', '1'])
-    writer.writerow(['22.265040', '113.995182', '10'])
-    writer.writerow(['22.170257', '114.131376', '161'])
-
-
-
-
-
+    for place in places:
+        writer.writerow([place.latitude, place.longitude, place.altitude])
     return response
 
 
 def dispatch(request, pk):
     dl = DroneLoad.objects.get(pk=pk)
     dl.dispatch()
-    return redirect('airsupply:dispatch_view')
-
+    return redirect('airsupply:dispatch_view')    
 
 def forgot_password(request):
     return render(request, 'forgot-password.html', {})
