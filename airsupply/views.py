@@ -4,6 +4,16 @@ from django.template.defaulttags import register
 from .models import Item, Category, Order, LineItem, Cart, DroneLoad, Place
 from django.http import JsonResponse
 import csv
+from django.contrib.auth import authenticate, login
+from django.views.generic import View
+from .forms import UserForm
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from .tokens import account_activation_token
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 
 from django.http import HttpResponse
@@ -193,3 +203,77 @@ def order_processed(request, pk):
     order = Order.objects.get(pk=pk)
     order.update_status("Queued for Dispatch")
     return redirect('airsupply:priority_queue')
+
+
+class UserFormView(View):
+    form_class = UserForm
+    template_name = 'register.html'
+
+    def get(self, request):
+        form = self.form_class(None)
+        if self.processToken(request, request.GET.get('uidb64'), request.GET.get('token')):
+            return render(request, self.template_name, {'form': form})
+        else:
+            return HttpResponse("Verification link is invalid!!")
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+
+            # get new user details ie. firstname, lastname, username, password (if cm then clinicname too). save the new details (overwrite username/password)
+            # login(request, user) and then redirect according to group (cm -> main/browse; dispatcher -> main/dispatch; wp -> main/priority_queue)
+            user = form.save(commit=False)
+
+            # cleaned (normalized) data
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            #changing user password:
+            user.set_password(password)
+            user.save()
+
+            #returns User objects if credentials are correct
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('airsupply:browse')
+
+        return render(request, self.template_name, {'form': form})
+
+    def processToken(self, request, uidb64, token):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            login(request, user)
+            # return redirect('home')
+            return True
+            # return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+        else:
+            return False
+
+
+#login classview/functionview. similar to post of userformview
+
+
+
+def send_activation_link(request, user):
+    current_site = get_current_site(request)
+    message = render_to_string('acc_active_email.html', {
+        'user': user, 'domain': current_site.domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_activation_token.make_token(user),
+    })
+    # Sending activation link in terminal
+    # user.email_user(subject, message)
+    mail_subject = 'Activate your Air Supply Pilot account.'
+    to_email = user.email
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    email.send()

@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
 
 #debugging:
 import logging
@@ -149,7 +150,7 @@ class Cart(Order):
     def checkout(self, priority):
         try:
             self.priority = priority
-            self.update_status("Queued for Processing")
+            self.update_status(Order.QP)
             self.save(update_fields=['priority'])
             self.delete(keep_parents=True)
             Cart.objects.create_cart()
@@ -174,6 +175,7 @@ class DroneLoad(models.Model):
         all_orders = self.orders.all()
         for order in all_orders:
             #emailClinicManager
-            order.update_status("Dispatched")
+            order.update_status(Order.DIS)
         self.dispatched = self.TRUE
         self.save()
+

@@ -5,10 +5,16 @@ app_name = 'airsupply'
 
 urlpatterns = [
 
+
+
+
+    #users
+    re_path(r'^register/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.UserFormView.as_view(), name='register'),
+
     #clinic manager
     path('browse/', views.BrowseView.as_view(), name='browse'),
     re_path(r'browse/(?P<catID>[0-9]+)/$', views.BrowseView.as_view(), name='browse_cat'),
-    path('cart/', views.CartView.as_view(), name='cart'),
+    path('cart/', views.CartView.as_view(),  name='cart'),
     path('my_orders/', views.OrderView.as_view(), name='my_orders'),
     path('cart/add/', views.cart_add, name='cart_add'),  # Change main.js too if URL is changed
     path('cart/checkout/', views.cart_checkout, name='cart_checkout'),
