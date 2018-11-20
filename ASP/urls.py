@@ -14,9 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from airsupply.tokens import send_activation_link
 
 urlpatterns = [
     path('main/', include('airsupply.urls')),
+    re_path(r'^admin/(?P<id>[0-9]+)$', send_activation_link, name='sendInvLink'),
     path('admin/', admin.site.urls),
+    #admin
+    #invitation link
+
+
 ]

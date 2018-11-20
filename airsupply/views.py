@@ -7,13 +7,11 @@ import csv
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
 from .forms import UserForm
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_decode
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
+
 from django.urls import reverse
 
 from django.http import HttpResponse
@@ -311,16 +309,3 @@ class UserRegisterView(View):
 #login classview/functionview. similar to post of userformview
 
 
-def send_activation_link(request, user):
-    current_site = get_current_site(request)
-    message = render_to_string('acc_active_email.html', {
-        'user': user, 'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
-        'token': account_activation_token.make_token(user),
-    })
-    # Sending activation link in terminal
-    # user.email_user(subject, message)
-    mail_subject = 'Activate your Air Supply Pilot account.'
-    to_email = user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.send()
