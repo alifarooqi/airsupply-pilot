@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 #debugging:
 import logging
@@ -252,3 +254,8 @@ class DroneLoad(models.Model):
                     newPlaces.append(place)
         newPlaces.append(p)
         return newPlaces
+
+
+class ClinicManager(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    clinic = models.ForeignKey(Place, on_delete=models.CASCADE)

@@ -1,7 +1,7 @@
 from django.views import generic
 from django.shortcuts import render, redirect
 from django.template.defaulttags import register
-from .models import Item, Category, Order, LineItem, Cart, DroneLoad, Place
+from .models import Item, Category, Order, LineItem, Cart, DroneLoad, Place, ClinicManager
 from django.http import JsonResponse
 import csv
 from django.contrib.auth import authenticate, login
@@ -30,6 +30,10 @@ def get_item(dictionary, key):
 class BrowseView(generic.ListView):
     template_name = 'clinic-manager/browse.html'
     context_object_name = 'all_items'
+
+
+
+
 
     if len(Cart.objects.all()) == 0: #not identifying with user for now
         Cart.objects.create_cart()
@@ -107,6 +111,10 @@ class OrderView(generic.ListView):
 
 
 def cart_checkout(request):# in first iteration, no clinic manager so we get the one available cart
+
+    u1 = User.objects.get(username='tempusername')
+    send_activation_link(request, u1)
+
     priority = request.POST['priority']
 
     cart = Cart.objects.get(status=Order.CART)
@@ -204,13 +212,13 @@ class PriorityQueueView(generic.ListView):
             "Medium": 2,
             "Low": 3
         }
-        orderedList = sorted(Order.objects.filter(status__in=["Queued for Processing", "Processing by Warehouse"]), key=lambda n: (order[n.priority], n.timeOrdered))
+        orderedList = sorted(Order.objects.filter(status__in=[Order.QP, Order.PW]), key=lambda n: (order[n.priority], n.timeOrdered))
         return orderedList
 
 
 def order_processed(request, pk):
     order = Order.objects.get(pk=pk)
-    order.update_status("Queued for Dispatch")
+    order.update_status(Order.QD)
     return redirect('airsupply:priority_queue')
 
 
@@ -224,14 +232,17 @@ def processing_order(request, pk):
     else:
         return JsonResponse({'success': True})
 
-class UserFormView(View):
+
+class UserRegisterView(View):
     form_class = UserForm
     template_name = 'register.html'
 
-    def get(self, request):
+    def get(self, request, uidb64, token):
         form = self.form_class(None)
-        if self.processToken(request, request.GET.get('uidb64'), request.GET.get('token')):
-            return render(request, self.template_name, {'form': form})
+        if self.processToken(request, uidb64, token):
+            role = request.user.groups.all()[0].name
+            clinics = Place.objects.exclude(name='Queen Mary Hospital Drone Port')
+            return render(request, self.template_name, {'form': form, 'user': request.user, 'role': role, 'possibleClinics': clinics})
         else:
             return HttpResponse("Verification link is invalid!!")
 
@@ -242,14 +253,26 @@ class UserFormView(View):
 
             # get new user details ie. firstname, lastname, username, password (if cm then clinicname too). save the new details (overwrite username/password)
             # login(request, user) and then redirect according to group (cm -> main/browse; dispatcher -> main/dispatch; wp -> main/priority_queue)
-            user = form.save(commit=False)
+            user = request.user
+
+            if user.groups.all()[0].name == "Clinic Manager":
+                clinic = Place.objects.get(name=form.cleaned_data['clinic'])
+                cm = ClinicManager()
+                cm.user = user
+                cm.clinic = clinic
+                cm.save()
 
             # cleaned (normalized) data
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            fname = form.cleaned_data['first_name']
+            lname = form.cleaned_data['last_name']
 
             #changing user password:
+            user.username = username
             user.set_password(password)
+            user.first_name = fname
+            user.last_name = lname
             user.save()
 
             #returns User objects if credentials are correct
@@ -258,7 +281,13 @@ class UserFormView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('airsupply:browse')
+                    role = user.groups.all()[0].name
+                    if role == "Clinic Manager":
+                        return redirect('airsupply:browse')
+                    elif role == "Dispatcher":
+                        return redirect('airsupply:dispatch_view')
+                    elif role == "Warehouse Personnel":
+                        return redirect('airsupply:priority_queue')
 
         return render(request, self.template_name, {'form': form})
 
@@ -282,12 +311,11 @@ class UserFormView(View):
 #login classview/functionview. similar to post of userformview
 
 
-
 def send_activation_link(request, user):
     current_site = get_current_site(request)
     message = render_to_string('acc_active_email.html', {
         'user': user, 'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
         'token': account_activation_token.make_token(user),
     })
     # Sending activation link in terminal

@@ -9,7 +9,8 @@ urlpatterns = [
 
 
     #users
-    re_path(r'^register/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.UserFormView.as_view(), name='register'),
+    re_path(r'^register/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.UserRegisterView.as_view(), name='register'),
+    re_path(r'^register/$', views.UserRegisterView.as_view(), name='confirm_registration'),
 
     #clinic manager
     path('browse/', views.BrowseView.as_view(), name='browse'),
