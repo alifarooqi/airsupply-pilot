@@ -9,3 +9,6 @@ db.sqlite3
 airsupply/__pycache__/
 
 *.pyc
+Pipfile
+Pipfile.lock
+db.sqlite3
