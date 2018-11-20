@@ -16,12 +16,28 @@ class CMInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     inlines = (CMInline,)
 
-    def __init__(self, *args, **kwargs):
-        super(UserAdmin,self).__init__(*args,**kwargs)
-        UserAdmin.list_display = list(UserAdmin.list_display) + ['send_invitation_link']
+	def __init__(self, *args, **kwargs):
+		super(UserAdmin,self).__init__(*args,**kwargs)
+		UserAdmin.list_display = list(UserAdmin.list_display) + ['send_invitation_link']
 
-    def send_invitation_link(self, obj):
-        return format_html('<a class="button" href="{}">Send</a>',"/admin?id="+str(obj.pk))
+	def get_urls(self):
+		urls = super().get_urls()
+		custom_urls = [
+			re_path(
+				r'link/(?P<private_key>)',
+                self.sendLink,
+                name='link',
+				),
+		]
+		return custom_urls + urls	
+
+	def send_invitation_link(self,obj):
+		return format_html(
+            '<a class="button" href="{}">Send</a>',"link/"+str(obj.pk))
+
+	def sendLink(self,request,private_key):
+		print('here', private_key)
+		pass
 
 
 admin.site.register(Place)
