@@ -29,7 +29,7 @@
 					<tbody>
                         {% for order in all_orders %}
                             <tr style="cursor: pointer">
-                                <td class="expandCollapseIcon"><i class="glyphicon glyphicon-plus-sign"></i></td>
+                                <td class="expandCollapseIcon"><i class="glyphicon glyphicon-plus-sign" title="Click to see or hide details!"></i></td>
                                 <td class="cart_product">
                                     <h4>{{ order.location.name }}</h4>
                                 </td>
@@ -43,25 +43,27 @@
                                     <p class="cart_total_price">{{ order.totalWeight }}kg</p>
                                 </td>
                                 <td class="cart_total">
-                                    <a class="btn btn-default" href={% url 'airsupply:order_processed' order.id %}>Order Processed!</a>
+                                    <button class="btn btn-default process-order-btn">Process this Order</button>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="5" class="item-details">
+                                <td colspan="6" class="item-details">
                                     <div class="toggleWrapper">
                                         <div class="row">
-                                            <div class="col-xs-offset-1 col-xs-3 itemTitle">Item ID</div>
+                                            <div class="col-xs-1 itemTitle">No.</div>
+                                            <div class="col-xs-2 itemTitle center">Item ID</div>
                                             <div class="col-xs-6 itemTitle">Description</div>
-                                            <div class="col-xs-2 itemTitle">Quantity</div>
+                                            <div class="col-xs-2 itemTitle center">Quantity</div>
                                         </div>
                                         {% for item in order.items.all %}
                                             <div class="row">
                                                 <div class="col-xs-1">{{ forloop.counter }}</div>
-                                                <div class="col-xs-3">{{ item.item.id }}</div>
+                                                <div class="col-xs-2 center">{{ item.item.id }}</div>
                                                 <div class="col-xs-6">{{ item.item.description }}</div>
-                                                <div class="col-xs-2">{{ item.quantity }}</div>
+                                                <div class="col-xs-2 center">{{ item.quantity }}</div>
                                             </div>
                                         {% endfor %}
+                                        <a class="btn btn-default order-processed-btn" href={% url 'airsupply:order_processed' order.id %}>&#x2714; Order Processed</a>
                                     </div>
                                 </td>
                             </tr>

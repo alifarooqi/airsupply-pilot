@@ -1,10 +1,10 @@
 /*price range*/
 
- $('#sl2').slider();
+$('#sl2').slider();
 
-	var RGBChange = function() {
-	  $('#RGB').css('background', 'rgb('+r.getValue()+','+g.getValue()+','+b.getValue()+')')
-	};
+var RGBChange = function() {
+  $('#RGB').css('background', 'rgb('+r.getValue()+','+g.getValue()+','+b.getValue()+')')
+};
 
 var BrowsePage = {
 	init: function() {
@@ -49,16 +49,27 @@ let TogglePriorityQueue = {
     bindEvents: function(){
         $("#priority-list-table").click(function(event) {
             let $target = $(event.target);
-            if ( $target.closest("td").attr("colspan") > 1  || $target.prop("tagName") == "A") {
+            if ( $target.closest("td").attr("colspan") > 1) {
                 // $target.slideUp();
-            } else {
+            }
+            else if($target.prop("tagName") == "BUTTON"){
+            	$target.closest("tr").find(".expandCollapseIcon").children().first().addClass(" glyphicon-minus-sign")
+                $target.closest("tr").next().find(".toggleWrapper").slideDown();
+            	$target.closest("tr").next().find(".order-processed-btn").slideDown("fast");
+            	$target.prop("disabled",true);
+            	$target.closest("tr").addClass("active-process")
+            	$target.closest("tr").next().addClass("active-process")
+				let order_id = $target.closest("tr").find(".cart_description").text().trim()
+				let url = "1/" + order_id;
+				$.getJSON(url, function(result){});
+			}
+			else {
             	$target.closest("tr").find(".expandCollapseIcon").children().first().toggleClass(" glyphicon-minus-sign")
                 $target.closest("tr").next().find(".toggleWrapper").slideToggle();
             }
         });
     }
 }
-
 
 /*scroll to top*/
 

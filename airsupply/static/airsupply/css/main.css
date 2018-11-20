@@ -2807,6 +2807,7 @@ h2.title {
 .itemTitle{
   font-size: 20px;
   font-weight: 700;
+  color: #fe151f;
 }
 
 .item-details ol li{
@@ -2818,4 +2819,18 @@ h2.title {
 }
 .expandCollapseIcon:hover{
   color: #fe151f;
+}
+
+.toggleWrapper .center{
+  text-align: center;
+}
+
+.order-processed-btn{
+  float: right;
+  margin-top: 50px;
+  display: none;
+}
+
+.active-process{
+  background: rgba(100, 100, 100, 0.1);
 }
