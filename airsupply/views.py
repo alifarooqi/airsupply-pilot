@@ -130,6 +130,18 @@ class DispatchView(generic.ListView):
     context_object_name = 'all_droneloads'
 
     def get_queryset(self):
+        order = {
+            "High": 1,
+            "Medium": 2,
+            "Low": 3
+        }
+        ordered_list = sorted(Order.objects.filter(status="Queued for Dispatch"),
+                             key=lambda n: (order[n.priority], n.timeOrdered))
+        dlWeight = 0.0
+        for order in ordered_list:
+            dlWeight += float(order.totalWeight)
+            #TODO Complete the logic after discussion with Saad
+
         return DroneLoad.objects.exclude(dispatched='TRUE')
 
     def get_context_data(self, **kwargs):
@@ -176,12 +188,22 @@ class PriorityQueueView(generic.ListView):
             "Medium": 2,
             "Low": 3
         }
-        orderedList = sorted(Order.objects.filter(status="Queued for Processing"), key=lambda n: (order[n.priority], n.timeOrdered))
+        orderedList = sorted(Order.objects.filter(status__in=["Queued for Processing", "Processing by Warehouse"]), key=lambda n: (order[n.priority], n.timeOrdered))
         return orderedList
 
 
 def order_processed(request, pk):
-    logger.error("Removing Order!!!")
     order = Order.objects.get(pk=pk)
     order.update_status("Queued for Dispatch")
     return redirect('airsupply:priority_queue')
+
+
+def processing_order(request, pk):
+    try:
+        order = Order.objects.get(pk=pk)
+        order.update_status("Processing by Warehouse")
+
+    except(KeyError, Item.DoesNotExist):
+        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
+    else:
+        return JsonResponse({'success': True})
