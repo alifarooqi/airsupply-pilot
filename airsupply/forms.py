@@ -12,8 +12,10 @@ class UserForm(forms.ModelForm):
 
 
 class ClinicManagerForm(UserForm):
-    clinic = forms.CharField()
+    clinicName = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    role = forms.CharField()
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'clinic']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'clinicName']

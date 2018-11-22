@@ -205,17 +205,20 @@ class DroneLoad(models.Model):
             if l==r:
                 perms.append(toString(a))
             else:
-                for i in range(l,r+1):
-                    a[l], a[i] = a[i], a[l]
+                for i in range(l, r+1):
+                    list1 = list(a)
+                    list1[l], list1[i] = list1[i], list1[l]
+                    a = toString(list1)
                     permute(a, l+1, r, perms)
-                    a[l], a[i] = a[i], a[l] # backtrack
+                    list1 = list(a)
+                    list1[l], list1[i] = list1[i], list1[l] # backtrack
 
-        def calcDistance(l1,l2):
-            print(l1,l2)
+        def calcDistance(l1, l2):
+            print("places", l1, l2)
             distance = InterPlaceDistance.objects.filter(fromLocation=l1,toLocation=l2)
             if not distance:
                 distance =  InterPlaceDistance.objects.filter(fromLocation=l2,toLocation=l1)
-            print(distance)
+            print("diatance",distance)
 
             return distance[0].distance
 
@@ -241,7 +244,7 @@ class DroneLoad(models.Model):
         orders = self.orders.all()
         places = []
         newPlaces = []
-        p = Place.objects.get(name="Queen Mary Hospital Drone Post")
+        p = Place.objects.get(name="Queen Mary Hospital Drone Port")
         for order in orders:
             places.append(order.location)
         string = convert2string(places,placeDict)

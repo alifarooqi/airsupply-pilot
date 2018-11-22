@@ -19,8 +19,7 @@ from airsupply.tokens import send_activation_link
 
 urlpatterns = [
     path('main/', include('airsupply.urls')),
-    re_path(r'^admin/(?P<id>[0-9]+)$', send_activation_link, name='sendInvLink'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin_page'),
     #admin
     #invitation link
 

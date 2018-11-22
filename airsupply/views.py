@@ -6,7 +6,7 @@ from django.http import JsonResponse
 import csv
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
-from .forms import UserForm
+from .forms import UserForm, ClinicManagerForm
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from .tokens import account_activation_token
@@ -109,9 +109,6 @@ class OrderView(generic.ListView):
 
 
 def cart_checkout(request):# in first iteration, no clinic manager so we get the one available cart
-
-    u1 = User.objects.get(username='tempusername')
-    send_activation_link(request, u1)
 
     priority = request.POST['priority']
 
@@ -240,6 +237,8 @@ class UserRegisterView(View):
         if self.processToken(request, uidb64, token):
             role = request.user.groups.all()[0].name
             clinics = Place.objects.exclude(name='Queen Mary Hospital Drone Port')
+            if role == "Clinic Manager":
+                form = ClinicManagerForm
             return render(request, self.template_name, {'form': form, 'user': request.user, 'role': role, 'possibleClinics': clinics})
         else:
             return HttpResponse("Verification link is invalid!!")
@@ -249,12 +248,10 @@ class UserRegisterView(View):
 
         if form.is_valid():
 
-            # get new user details ie. firstname, lastname, username, password (if cm then clinicname too). save the new details (overwrite username/password)
-            # login(request, user) and then redirect according to group (cm -> main/browse; dispatcher -> main/dispatch; wp -> main/priority_queue)
             user = request.user
 
             if user.groups.all()[0].name == "Clinic Manager":
-                clinic = Place.objects.get(name=form.cleaned_data['clinic'])
+                clinic = Place.objects.get(name=form.cleaned_data['clinicName'])
                 cm = ClinicManager()
                 cm.user = user
                 cm.clinic = clinic
