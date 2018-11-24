@@ -64,6 +64,7 @@
                                             </div>
                                         {% endfor %}
                                         <a class="btn btn-default order-processed-btn" href={% url 'airsupply:order_processed' order.id %}>&#x2714; Order Processed</a>
+                                        <a class="btn btn-default down-shipping-btn" target="_blank" href={% url 'airsupply:download_shipping' order.id %}>Download Shipping Label</a>
                                     </div>
                                 </td>
                             </tr>

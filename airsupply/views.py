@@ -261,6 +261,15 @@ def processing_order(request, pk):
         return JsonResponse({'success': True})
 
 
+def download_shipping(request, pk):
+    try:
+        order = Order.objects.get(pk=pk)
+    except(KeyError, Item.DoesNotExist):
+        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
+    else:
+        return order.download_shipping()
+
+
 # User
 class UserRegisterView(View):
     form_class = UserForm

@@ -2829,6 +2829,15 @@ h2.title {
   float: right;
   margin-top: 50px;
   display: none;
+    background: #fe151f;
+    color: #FFFFFF;
+}
+
+.down-shipping-btn{
+  float: right;
+  margin-top: 50px;
+  display: none;
+    margin-right: 20px;
 }
 
 .active-process{

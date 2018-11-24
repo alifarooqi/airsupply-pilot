@@ -56,6 +56,7 @@ let TogglePriorityQueue = {
             	$target.closest("tr").find(".expandCollapseIcon").children().first().addClass(" glyphicon-minus-sign")
                 $target.closest("tr").next().find(".toggleWrapper").slideDown();
             	$target.closest("tr").next().find(".order-processed-btn").slideDown("fast");
+            	$target.closest("tr").next().find(".down-shipping-btn").slideDown("fast");
             	$target.prop("disabled",true);
             	$target.closest("tr").addClass("active-process")
             	$target.closest("tr").next().addClass("active-process")
