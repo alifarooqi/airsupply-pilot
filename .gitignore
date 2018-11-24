@@ -1,2 +1,8 @@
 
 db.sqlite3
+
+airsupply/migrations
+
+*.xml
+Pipfile*
+*.iml*
