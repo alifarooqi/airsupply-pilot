@@ -11,7 +11,7 @@ from django.utils.http import urlsafe_base64_encode
 class TokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         return (
-            six.text_type(user.pk) + six.text_type(timestamp) +
+            six.text_type(user.username) + six.text_type(timestamp) +
             six.text_type(user.is_active)
         )
 
@@ -24,7 +24,7 @@ def send_activation_link(request, id):
     user = User.objects.get(pk=id)
     message = render_to_string('acc_active_email.html', {
         'user': user, 'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+        'username': urlsafe_base64_encode(force_bytes(user.username)).decode(),
         'token': account_activation_token.make_token(user),
     })
     # Sending activation link in terminal

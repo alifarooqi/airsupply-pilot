@@ -19,3 +19,12 @@ class ClinicManagerForm(UserForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'clinicName']
+
+
+"""
+class UserLogin(forms.ModelForm):
+    
+    class Meta:
+        model = User
+        fields = ['']
+"""

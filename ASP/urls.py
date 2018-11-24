@@ -15,13 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from airsupply.tokens import send_activation_link
+from airsupply import views
 
 urlpatterns = [
+    re_path(r'^$', views.UserLoginView.as_view(), name='login'),
     path('main/', include('airsupply.urls')),
     path('admin/', admin.site.urls, name='admin_page'),
-    #admin
-    #invitation link
 
 
 ]

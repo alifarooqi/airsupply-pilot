@@ -25,6 +25,7 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
+# Clinic Managers
 class BrowseView(generic.ListView):
     template_name = 'clinic-manager/browse.html'
     context_object_name = 'all_items'
@@ -143,6 +144,7 @@ class OrderDetailView(generic.ListView):
         return context
 
 
+# Dispatcher
 class DispatchView(generic.ListView):
     template_name = 'dispatcher/dispatch-queue.html'
     context_object_name = 'all_droneloads'
@@ -193,10 +195,7 @@ def dispatch(request, pk):
     return redirect('airsupply:dispatch_view')
 
 
-def forgot_password(request):
-    return render(request, 'forgot-password.html', {})
-
-
+# Warehouse Personnel
 class PriorityQueueView(generic.ListView):
     template_name = 'warehouse-personnel/priority-queue.html'
     context_object_name = 'all_orders'
@@ -228,13 +227,14 @@ def processing_order(request, pk):
         return JsonResponse({'success': True})
 
 
+# User
 class UserRegisterView(View):
     form_class = UserForm
     template_name = 'register.html'
 
-    def get(self, request, uidb64, token):
+    def get(self, request, usernameb64, token):
         form = self.form_class(None)
-        if self.processToken(request, uidb64, token):
+        if self.processToken(request, usernameb64, token):
             role = request.user.groups.all()[0].name
             clinics = Place.objects.exclude(name='Queen Mary Hospital Drone Port')
             if role == "Clinic Manager":
@@ -244,18 +244,14 @@ class UserRegisterView(View):
             return HttpResponse("Verification link is invalid!!")
 
     def post(self, request):
+        user = request.user
+
         form = self.form_class(request.POST)
 
+        if user.groups.all()[0].name == "Clinic Manager":
+            form = ClinicManagerForm(request.POST)
+
         if form.is_valid():
-
-            user = request.user
-
-            if user.groups.all()[0].name == "Clinic Manager":
-                clinic = Place.objects.get(name=form.cleaned_data['clinicName'])
-                cm = ClinicManager()
-                cm.user = user
-                cm.clinic = clinic
-                cm.save()
 
             # cleaned (normalized) data
             username = form.cleaned_data['username']
@@ -269,6 +265,14 @@ class UserRegisterView(View):
             user.first_name = fname
             user.last_name = lname
             user.save()
+
+            if user.groups.all()[0].name == "Clinic Manager":
+                clinic = Place.objects.get(name=form.cleaned_data['clinicName'])
+                cm = ClinicManager()
+                cm.user = user
+                cm.clinic = clinic
+                cm.save()
+
 
             #returns User objects if credentials are correct
             user = authenticate(username=username, password=password)
@@ -286,10 +290,10 @@ class UserRegisterView(View):
 
         return render(request, self.template_name, {'form': form})
 
-    def processToken(self, request, uidb64, token):
+    def processToken(self, request, usernameb64, token):
         try:
-            uid = force_text(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
+            username = force_text(urlsafe_base64_decode(usernameb64))
+            user = User.objects.get(username=username)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         if user is not None and account_activation_token.check_token(user, token):
@@ -303,6 +307,13 @@ class UserRegisterView(View):
             return False
 
 
+def forgot_password(request):
+    return render(request, 'forgot-password.html', {})
+
+
 #login classview/functionview. similar to post of userformview
+class UserLoginView(View):
+    template_name = 'login.html'
 
-
+    def get(self, request):
+        return render(request,self.template_name)

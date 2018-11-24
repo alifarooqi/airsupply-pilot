@@ -7,6 +7,16 @@ from .models import Item, Category, Order, Cart, LineItem, Place, InterPlaceDist
 from airsupply.tokens import send_activation_link
 from django.shortcuts import redirect
 
+
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from .tokens import account_activation_token
+
+
+
 # Define an inline admin descriptor for Employee model
 # which acts a bit like a singleton
 class CMInline(admin.StackedInline):
