@@ -31,6 +31,11 @@ class InterPlaceDistance(models.Model):
         unique_together = ("fromLocation", "toLocation")
 
 
+class ClinicManager(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    clinic = models.ForeignKey(Place, on_delete=models.CASCADE)
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
@@ -91,7 +96,7 @@ class Order(models.Model):
     objects = OrderManager()
 
     items = models.ManyToManyField(LineItem, blank=True, null=True)
-    location = models.ForeignKey(Place, on_delete=models.CASCADE, default=None)
+    clinicManager = models.ForeignKey(ClinicManager, default=3, on_delete=models.CASCADE)
     priority = models.CharField(max_length=100, choices=prioList)
     status = models.CharField(max_length=100, choices=statusList)
     totalWeight = models.DecimalField(max_digits=100, decimal_places=2)
@@ -100,7 +105,7 @@ class Order(models.Model):
     timeDispatched = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.id) + ": "+self.priority + " - " + str(self.location) #+ self.clinicManager.clinic_name
+        return str(self.id) + ": "+self.priority + " - " #+ str(self.location) #+ self.clinicManager.clinic_name
 
     def delete_order(self):
         for lt in self.items:
@@ -112,6 +117,8 @@ class Order(models.Model):
             self.timeDispatched = datetime.now()
         elif status == "Queued for Processing":
             self.timeOrdered = datetime.now()
+        elif status == "Delivered":
+            self.timeDelivered = datetime.now()
         self.status = status
         self.save()
 
@@ -119,9 +126,11 @@ class Order(models.Model):
 class CartManager(models.Manager):
     # when clinic manager logs in, create a cart. ie. when browser is reached. but right now no CM so no linking to
     # correct location. right now its linking to Mui Wo
-    def create_cart(self):
-        cart = self.create(priority=Order.NONE, status=Order.CART, totalWeight=0.0, location=Place.objects.get(id=4))
-        cart.save()
+    def create_cart(self, cm):
+        cart = None
+        if Cart.objects.filter(clinicManager=cm, status=Order.CART).count() == 0:
+            cart = self.create(priority=Order.NONE, status=Order.CART, totalWeight=0.0, clinicManager=cm)
+            cart.save()
         return cart
 
 
@@ -155,7 +164,6 @@ class Cart(Order):
             self.update_status(Order.QP)
             self.save(update_fields=['priority'])
             self.delete(keep_parents=True)
-            Cart.objects.create_cart()
         except KeyError:
             return False
         else:
@@ -257,8 +265,3 @@ class DroneLoad(models.Model):
                     newPlaces.append(place)
         newPlaces.append(p)
         return newPlaces
-
-
-class ClinicManager(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    clinic = models.ForeignKey(Place, on_delete=models.CASCADE)

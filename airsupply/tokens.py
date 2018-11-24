@@ -27,9 +27,24 @@ def send_activation_link(request, id):
         'username': urlsafe_base64_encode(force_bytes(user.username)).decode(),
         'token': account_activation_token.make_token(user),
     })
+    mail_subject = 'Activate your Air Supply Pilot account.'
+    to_email = user.email
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    email.send()
+
+
+def send_new_password(request, user):
+    current_site = get_current_site(request)
+    password = User.objects.make_random_password()
+    user.set_password(password)
+    user.save()
+    message = render_to_string('pass-reset.html', {
+        'user': user, 'domain': current_site.domain,
+        'password': password,
+    })
     # Sending activation link in terminal
     # user.email_user(subject, message)
-    mail_subject = 'Activate your Air Supply Pilot account.'
+    mail_subject = 'Your Air Supply Pilot account\'s new password.'
     to_email = user.email
     email = EmailMessage(mail_subject, message, to=[to_email])
     email.send()

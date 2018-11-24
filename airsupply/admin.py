@@ -6,17 +6,6 @@ from django.urls import re_path
 from .models import Item, Category, Order, Cart, LineItem, Place, InterPlaceDistance, DroneLoad, ClinicManager
 from airsupply.tokens import send_activation_link
 from django.shortcuts import redirect
-
-
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from .tokens import account_activation_token
-
-
-
 # Define an inline admin descriptor for Employee model
 # which acts a bit like a singleton
 class CMInline(admin.StackedInline):
@@ -39,17 +28,13 @@ class CustomUserAdmin(UserAdmin):
         ]
         return custom_urls + urls
 
-
     def send_invitation_link(self,obj):
         return format_html(
             '<a class="button" href="{}">Send</a>', "link/"+str(obj.pk))
 
-
     def sendLink(self,request,private_key):
-        print('here', private_key)
         send_activation_link(request, private_key)
         return redirect('http://127.0.0.1:8000/admin/auth/user/')
-        pass
 
 
 admin.site.register(Place)

@@ -4,16 +4,16 @@ from django.template.defaulttags import register
 from .models import Item, Category, Order, LineItem, Cart, DroneLoad, Place, ClinicManager
 from django.http import JsonResponse
 import csv
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
 from .forms import UserForm, ClinicManagerForm
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
-
-from django.urls import reverse
-
+from .tokens import send_new_password
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponse
 
 #debugging:
@@ -25,17 +25,42 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-# Clinic Managers
-class BrowseView(generic.ListView):
+# group checkers
+def cm_checker(user):
+    return user.groups.filter(name='Clinic Manager') | user.is_superuser
+
+
+class CMCheck(UserPassesTestMixin):
+    def test_func(self):
+        u = self.request.user
+        return u.groups.filter(name='Clinic Manager').count() != 0 | u.is_superuser
+
+
+def disp_checker(user):
+    return user.groups.filter(name='Dispatcher') | user.is_superuser
+
+
+class DispCheck(UserPassesTestMixin):
+    def test_func(self):
+        u = self.request.user
+        return u.groups.filter(name='Dispatcher').count() != 0 | u.is_superuser
+
+
+def wp_checker(user):
+    return user.groups.filter(name='Warehouse Personnel') | user.is_superuser
+
+
+class WPCheck(UserPassesTestMixin):
+    def test_func(self):
+        u = self.request.user
+        return u.groups.filter(name='Warehouse Personnel').count() != 0 | u.is_superuser
+
+
+# Clinic Manager
+class BrowseView(CMCheck, generic.ListView):
+    group_required = u"Professor"
     template_name = 'clinic-manager/browse.html'
     context_object_name = 'all_items'
-
-
-
-
-
-    if len(Cart.objects.all()) == 0: #not identifying with user for now
-        Cart.objects.create_cart()
 
     def get_queryset(self):
         if self.kwargs.get('catID'):
@@ -56,12 +81,13 @@ class BrowseView(generic.ListView):
         return context
 
 
-class CartView(generic.ListView):
+class CartView(CMCheck, generic.ListView):
+    permission_required = 'cart.change_cart'
     template_name = 'clinic-manager/cart.html'
     context_object_name = 'all_items'
 
     def get_queryset(self):
-        return Cart.objects.get(status=Order.CART).items.all()
+        return Cart.objects.get(clinicManager=self.request.user.clinicmanager, status=Order.CART).items.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,7 +103,8 @@ class CartView(generic.ListView):
         return context
 
 
-def cart_add(request):# in first iteration, no clinic manager so we get the one available cart
+@user_passes_test(cm_checker)
+def cart_add(request):
 
     try:
         itemID = request.GET.get('itemid', 0)
@@ -88,7 +115,7 @@ def cart_add(request):# in first iteration, no clinic manager so we get the one 
     except(KeyError, Item.DoesNotExist):
         return JsonResponse({'success': False, 'error_message': 'Item does not exist'})
     else:
-        cart = Cart.objects.get(status=Order.CART) # get any cart
+        cart = Cart.objects.get(clinicManager=request.user.clinicmanager, status=Order.CART)
 
         newItem = LineItem()
         newItem.item = item
@@ -101,7 +128,8 @@ def cart_add(request):# in first iteration, no clinic manager so we get the one 
             return JsonResponse({'success': False, 'error_message': 'Cart weight limit exceeded'})
 
 
-class OrderView(generic.ListView):
+class OrderView(CMCheck, generic.ListView):
+    permission_required = 'order.delete_order'
     template_name = 'clinic-manager/view-orders.html'
     context_object_name = 'all_orders'
 
@@ -109,18 +137,21 @@ class OrderView(generic.ListView):
         return Order.objects.exclude(status=Order.CART)
 
 
-def cart_checkout(request):# in first iteration, no clinic manager so we get the one available cart
+@user_passes_test(cm_checker)
+def cart_checkout(request):
 
     priority = request.POST['priority']
 
-    cart = Cart.objects.get(status=Order.CART)
+    cart = Cart.objects.get(clinicManager=request.user.clinicmanager, status=Order.CART)
     if cart.checkout(priority):
+        Cart.objects.create_cart(request.user.clinicmanager)
         return redirect('airsupply:my_orders')
     else:
         return JsonResponse({'success': False})
 
 
-class OrderDetailView(generic.ListView):
+class OrderDetailView(CMCheck, generic.ListView):
+    permission_required = 'order.change_order'
     template_name = 'clinic-manager/cart.html'
     context_object_name = 'all_items'
 
@@ -145,7 +176,8 @@ class OrderDetailView(generic.ListView):
 
 
 # Dispatcher
-class DispatchView(generic.ListView):
+class DispatchView(DispCheck, generic.ListView):
+    permission_required = 'drone_load.change_order'
     template_name = 'dispatcher/dispatch-queue.html'
     context_object_name = 'all_droneloads'
 
@@ -177,6 +209,7 @@ class DispatchView(generic.ListView):
         return context
 
 
+@user_passes_test(disp_checker)
 def get_itinerary(request, pk):
     # Create the HttpResponse object with the appropriate CSV header.
     dl = DroneLoad.objects.get(pk=pk)
@@ -189,6 +222,7 @@ def get_itinerary(request, pk):
     return response
 
 
+@user_passes_test(disp_checker)
 def dispatch(request, pk):
     dl = DroneLoad.objects.get(pk=pk)
     dl.dispatch()
@@ -196,7 +230,7 @@ def dispatch(request, pk):
 
 
 # Warehouse Personnel
-class PriorityQueueView(generic.ListView):
+class PriorityQueueView(WPCheck, generic.ListView):
     template_name = 'warehouse-personnel/priority-queue.html'
     context_object_name = 'all_orders'
 
@@ -209,13 +243,13 @@ class PriorityQueueView(generic.ListView):
         orderedList = sorted(Order.objects.filter(status__in=[Order.QP, Order.PW]), key=lambda n: (order[n.priority], n.timeOrdered))
         return orderedList
 
-
+@user_passes_test(wp_checker)
 def order_processed(request, pk):
     order = Order.objects.get(pk=pk)
     order.update_status(Order.QD)
     return redirect('airsupply:priority_queue')
 
-
+@user_passes_test(wp_checker)
 def processing_order(request, pk):
     try:
         order = Order.objects.get(pk=pk)
@@ -273,21 +307,7 @@ class UserRegisterView(View):
                 cm.clinic = clinic
                 cm.save()
 
-
-            #returns User objects if credentials are correct
-            user = authenticate(username=username, password=password)
-
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    role = user.groups.all()[0].name
-                    if role == "Clinic Manager":
-                        return redirect('airsupply:browse')
-                    elif role == "Dispatcher":
-                        return redirect('airsupply:dispatch_view')
-                    elif role == "Warehouse Personnel":
-                        return redirect('airsupply:priority_queue')
-
+            return authUser(request, username, password, self.template_name)
         return render(request, self.template_name, {'form': form})
 
     def processToken(self, request, usernameb64, token):
@@ -307,13 +327,57 @@ class UserRegisterView(View):
             return False
 
 
-def forgot_password(request):
-    return render(request, 'forgot-password.html', {})
-
-
-#login classview/functionview. similar to post of userformview
 class UserLoginView(View):
     template_name = 'login.html'
 
     def get(self, request):
-        return render(request,self.template_name)
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        return authUser(request, username, password, '')
+
+
+class UserForgotPassword(View):
+    template_name = 'forgot-password.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        try:
+            user = User.objects.get(username=request.POST['up'])
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(email=request.POST['up'])
+            except User.DoesNotExist:
+                return render(request, self.template_name, {'error_message': 'Invalid username or email'})
+        send_new_password(request, user)
+        return redirect('login')
+
+
+def authUser(request, username, password, url, data={}):
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            role = user.groups.all()[0].name
+            if role == "Clinic Manager":
+                Cart.objects.create_cart(user.clinicmanager)
+                return redirect('airsupply:browse')
+            elif role == "Dispatcher":
+                return redirect('airsupply:dispatch_view')
+            elif role == "Warehouse Personnel":
+                return redirect('airsupply:priority_queue')
+        else:
+            data['error_message'] = 'Your account has been disabled'
+            return render(request, url, data)
+    else:
+        data['error_message'] = 'Invalid username or password'
+        return render(request, url, data)
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('/')
