@@ -3,6 +3,15 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import io
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+
+
 
 #debugging:
 import logging
@@ -114,6 +123,48 @@ class Order(models.Model):
             self.timeOrdered = datetime.now()
         self.status = status
         self.save()
+
+    def download_shipping(self):
+        # Old code
+        # response = HttpResponse(content_type='application/pdf')
+        # response['Content-Disposition'] = 'inline; filename="mypdf.pdf"'
+        #
+        # # Create a file-like buffer to receive PDF data.
+        # buffer = io.BytesIO()
+        #
+        # # Create the PDF object, using the buffer as its "file."
+        # p = canvas.Canvas(buffer)
+        #
+        # # Draw things on the PDF. Here's where the PDF generation happens.
+        # # See the ReportLab documentation for the full list of functionality.
+        # p.drawString(100, 100, "Hello world.")
+        #
+        # # Close the PDF object cleanly, and we're done.
+        # p.showPage()
+        # p.save()
+        #
+        # pdf = buffer.getvalue()
+        # buffer.close()
+        # response.write(pdf)
+        #
+        # return response
+        # # FileResponse sets the Content-Disposition header so that browsers
+        # # present the option to save the file.
+        # # return FileResponse(buffer, as_attachment=False, filename='hello.pdf')
+        context_dict = {
+            "id": self.pk,
+            "name": self.location,
+            "priority": self.priority,
+            "all_items": self.items
+        }
+        template_src = "warehouse-personnel/pdf.html"
+        template = get_template(template_src)
+        html = template.render(context_dict)
+        result = io.BytesIO()
+        pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
+        if not pdf.err:
+            return HttpResponse(result.getvalue(), content_type='application/pdf')
+        return None
 
 
 class CartManager(models.Manager):
