@@ -316,7 +316,7 @@ class UserRegisterView(View):
                 cm.clinic = clinic
                 cm.save()
 
-            return authUser(request, username, password, self.template_name)
+            return authUser(request, username, password, self.template_name, {'form': form})
         return render(request, self.template_name, {'form': form})
 
     def processToken(self, request, usernameb64, token):
@@ -345,7 +345,7 @@ class UserLoginView(View):
     def post(self, request):
         username = request.POST.get('username')
         password = request.POST.get('password')
-        return authUser(request, username, password, '')
+        return authUser(request, username, password, 'login.html')
 
 
 class UserForgotPassword(View):
@@ -366,7 +366,7 @@ class UserForgotPassword(View):
         return redirect('login')
 
 
-def authUser(request, username, password, url, data={}):
+def authUser(request, username, password, temp_name, data={}):
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
@@ -381,10 +381,10 @@ def authUser(request, username, password, url, data={}):
                 return redirect('airsupply:priority_queue')
         else:
             data['error_message'] = 'Your account has been disabled'
-            return render(request, url, data)
+            return render(request, temp_name, data)
     else:
         data['error_message'] = 'Invalid username or password'
-        return render(request, url, data)
+        return render(request, temp_name, data)
 
 
 def logout_user(request):
