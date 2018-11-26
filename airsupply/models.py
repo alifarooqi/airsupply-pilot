@@ -222,6 +222,8 @@ class Cart(Order):
 
 
 class DroneLoad(models.Model):
+    DRONE_WEIGHT = 1.2
+    DRONE_LIMIT = 25 - DRONE_WEIGHT
     TRUE = "TRUE"
     FALSE = "FALSE"
     statusList = ((TRUE, 'True'), (FALSE, 'False'))
@@ -230,7 +232,7 @@ class DroneLoad(models.Model):
     dispatched = models.CharField(max_length=5, choices=statusList, default=FALSE)
 
     def __str__(self):
-        return str(self.id) + ": "+str(self.orders.count())+" orders"
+        return str(self.id) #+ ": "+str(self.orders.count())+" orders"
 
     def dispatch(self):
         all_orders = self.orders.all()
@@ -316,3 +318,6 @@ class DroneLoad(models.Model):
                     newPlaces.append(place)
         newPlaces.append(p)
         return newPlaces
+
+    def add_order(self, order):
+        self.orders.add(order)

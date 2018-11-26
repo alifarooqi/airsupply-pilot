@@ -192,19 +192,35 @@ class DispatchView(DispCheck, generic.ListView):
     context_object_name = 'all_droneloads'
 
     def get_queryset(self):
-        order = {
+        self.makeDroneLoads()
+        return DroneLoad.objects.exclude(dispatched='TRUE')
+
+    def makeDroneLoads(self):
+        DroneLoad.objects.exclude(dispatched='TRUE').delete()
+
+        order_priority = {
             "High": 1,
             "Medium": 2,
             "Low": 3
         }
-        ordered_list = sorted(Order.objects.filter(status="Queued for Dispatch"),
-                             key=lambda n: (order[n.priority], n.timeOrdered))
+        ordered_list = sorted(Order.objects.filter(status=Order.QD),
+                              key=lambda n: (order_priority[n.priority], n.timeOrdered))
+
         dlWeight = 0.0
+        newDL = DroneLoad()
+        newDL.save()
         for order in ordered_list:
             dlWeight += float(order.totalWeight)
-            #TODO Complete the logic after discussion with Saad
-
-        return DroneLoad.objects.exclude(dispatched='TRUE')
+            if dlWeight < DroneLoad.DRONE_LIMIT:
+                newDL.add_order(order)
+            else:
+                newDL.save()
+                newDL = DroneLoad()
+                newDL.save()
+                newDL.add_order(order)
+                dlWeight = float(order.totalWeight)
+        if newDL.orders.count():
+            newDL.save()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
