@@ -373,7 +373,24 @@ class UserForgotPassword(View):
             except User.DoesNotExist:
                 return render(request, self.template_name, {'error_message': 'Invalid username or email'})
         send_new_password(request, user)
-        return redirect('login')
+        return redirect('airsupply:login')
+
+
+class UserAccount(View):
+    template_name = 'account.html'
+
+    def get(self, request):
+        form = UserForm(request.user)
+        return render(request, self.template_name, {'user': request.user, 'role': request.user.groups.all()[0].name})
+
+    def post(self, request):
+        fname = request.POST.get('first_name')
+        password = request.POST.get('last_name')
+        fname = request.POST.get('first_name')
+        password = request.POST.get('last_name')
+        fname = request.POST.get('first_name')
+        password = request.POST.get('last_name')
+        pass
 
 
 def authUser(request, username, password, temp_name, data={}):
@@ -399,4 +416,4 @@ def authUser(request, username, password, temp_name, data={}):
 
 def logout_user(request):
     logout(request)
-    return redirect('/')
+    return redirect('airsupply:login')

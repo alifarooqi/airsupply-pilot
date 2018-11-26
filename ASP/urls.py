@@ -18,8 +18,7 @@ from django.urls import path, include, re_path
 from airsupply import views
 
 urlpatterns = [
-    re_path(r'^$', views.UserLoginView.as_view(), name='login'),
-    re_path(r'^logout/$', views.logout_user, name='logout'),
+
     path('main/', include('airsupply.urls')),
     path('admin/', admin.site.urls, name='admin_page'),
 

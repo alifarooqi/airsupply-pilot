@@ -129,4 +129,4 @@ EMAIL_HOST_PASSWORD = 'saadhku123'
 EMAIL_PORT = 587
 
 
-LOGIN_URL = '/'
+LOGIN_URL = '/main/'
