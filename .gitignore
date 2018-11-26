@@ -89,4 +89,6 @@ local_settings.py
 
 .env
 .vscode
-.idea/workspace.xml
+
+*.iml
+*.xml
