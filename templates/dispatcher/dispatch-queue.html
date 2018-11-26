@@ -18,7 +18,7 @@
 				<table class="table table-condensed">
 					<thead>
 						<tr class="cart_menu">
-							<td class="drone">Drone ID</td>
+							<!--<td class="drone">Drone ID</td>-->
 							<td class="orders">Orders</td>
 							<!--<td class="weight"></td>-->
 							<td class="dispatch_options">Options</td>
@@ -28,11 +28,11 @@
 
                     {% for droneload in all_droneloads %}
                         <tr {% if forloop.first %} class="top_drone" {% endif %}>
-							<td class="drone_col verticalColumn">
-								<p class="drone_id">
-									123456
-								</p>
-							</td>
+							<!--<td class="drone_col verticalColumn">-->
+								<!--<p class="drone_id" title="To be added in real iteration">-->
+									<!---->
+								<!--</p>-->
+							<!--</td>-->
 							<td class="cart_description orders_col">
 								<h4>Orders to be loaded:</h4>
                                 {% for order in droneload.orders.all %}
