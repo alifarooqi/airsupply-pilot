@@ -38,7 +38,7 @@
                                 {% for order in droneload.orders.all %}
                                     <div class="row">
                                         <div class="col-xs-1"><br>{{ forloop.counter }}.</div>
-                                        <div class="col-xs-8 order_wrapper"><b>{{ order.id }}</b><br>{{ order.location.name }}</div>
+                                        <div class="col-xs-8 order_wrapper"><b>{{ order.id }}</b><br>{{ order.clinicManager.clinic.name }}</div>
                                         <div class="col-xs-2 weight_col"><br>{{ order.totalWeight }}kg</div>
                                     </div>
                                 {% endfor %}

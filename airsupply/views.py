@@ -27,7 +27,7 @@ def get_item(dictionary, key):
 
 # group checkers
 def cm_checker(user):
-    return user.groups.filter(name='Clinic Manager') | user.is_superuser
+    return user.groups.filter(name='Clinic Manager').count() != 0 | user.is_superuser
 
 
 class CMCheck(UserPassesTestMixin):
@@ -37,7 +37,7 @@ class CMCheck(UserPassesTestMixin):
 
 
 def disp_checker(user):
-    return user.groups.filter(name='Dispatcher') | user.is_superuser
+    return user.groups.filter(name='Dispatcher').count() != 0 | user.is_superuser
 
 
 class DispCheck(UserPassesTestMixin):
@@ -47,7 +47,7 @@ class DispCheck(UserPassesTestMixin):
 
 
 def wp_checker(user):
-    return user.groups.filter(name='Warehouse Personnel') | user.is_superuser
+    return user.groups.filter(name='Warehouse Personnel').count() != 0 | user.is_superuser
 
 
 class WPCheck(UserPassesTestMixin):
@@ -58,7 +58,6 @@ class WPCheck(UserPassesTestMixin):
 
 # Clinic Manager
 class BrowseView(CMCheck, generic.ListView):
-    group_required = u"Professor"
     template_name = 'clinic-manager/browse.html'
     context_object_name = 'all_items'
 
@@ -175,9 +174,20 @@ class OrderDetailView(CMCheck, generic.ListView):
         return context
 
 
+def cancelOrder(request, pk):
+    cancelingOrder = Order.objects.get(id=pk)
+    cancelingOrder.delete_order()
+    return redirect("airsupply:my_orders")
+
+
+def receiveOrder(request, pk):
+    receivingOrder = Order.objects.get(id=pk)
+    receivingOrder.update_status("Delivered")
+    return redirect("airsupply:my_orders")
+
+
 # Dispatcher
 class DispatchView(DispCheck, generic.ListView):
-    permission_required = 'drone_load.change_order'
     template_name = 'dispatcher/dispatch-queue.html'
     context_object_name = 'all_droneloads'
 

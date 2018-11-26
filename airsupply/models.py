@@ -114,10 +114,10 @@ class Order(models.Model):
     timeDispatched = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.id) + ": "+self.priority + " - " #+ str(self.location) #+ self.clinicManager.clinic_name
+        return str(self.id) + ": "+self.priority + " - " + self.clinicManager.clinic.name
 
     def delete_order(self):
-        for lt in self.items:
+        for lt in self.items.all():
             lt.delete()
         self.delete()
 
@@ -160,7 +160,7 @@ class Order(models.Model):
         # # return FileResponse(buffer, as_attachment=False, filename='hello.pdf')
         context_dict = {
             "id": self.pk,
-            "name": self.location,
+            "name": self.clinicManager.clinic.name,
             "priority": self.priority,
             "all_items": self.items
         }
@@ -305,7 +305,7 @@ class DroneLoad(models.Model):
         newPlaces = []
         p = Place.objects.get(name="Queen Mary Hospital Drone Port")
         for order in orders:
-            places.append(order.location)
+            places.append(order.clinicManager.clinic)
         string = convert2string(places,placeDict)
         permute(string,0,len(string)-1,perms)
         path = minDistance(perms,p,placeDict)
