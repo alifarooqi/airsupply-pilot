@@ -6,7 +6,7 @@ from django.http import JsonResponse
 import csv
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
-from .forms import UserForm, ClinicManagerForm
+from .forms import UserForm, ClinicManagerForm, AccountForm
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from .tokens import account_activation_token
@@ -305,19 +305,18 @@ class UserRegisterView(View):
         form = self.form_class(None)
         if self.processToken(request, usernameb64, token):
             role = request.user.groups.all()[0].name
-            clinics = Place.objects.exclude(name='Queen Mary Hospital Drone Port')
             if role == "Clinic Manager":
                 form = ClinicManagerForm
-            return render(request, self.template_name, {'form': form, 'user': request.user, 'role': role, 'possibleClinics': clinics})
+            return render(request, self.template_name,
+                          {'form': form, 'email': request.user.email, 'role': role})
         else:
             return HttpResponse("Verification link is invalid!!")
 
     def post(self, request):
         user = request.user
-
+        role = user.groups.all()[0].name
         form = self.form_class(request.POST)
-
-        if user.groups.all()[0].name == "Clinic Manager":
+        if role == "Clinic Manager":
             form = ClinicManagerForm(request.POST)
 
         if form.is_valid():
@@ -335,15 +334,15 @@ class UserRegisterView(View):
             user.last_name = lname
             user.save()
 
-            if user.groups.all()[0].name == "Clinic Manager":
-                clinic = Place.objects.get(name=form.cleaned_data['clinicName'])
+            if role == "Clinic Manager":
+                clinic = form.cleaned_data['clinicName']
                 cm = ClinicManager()
                 cm.user = user
                 cm.clinic = clinic
                 cm.save()
 
-            return authUser(request, username, password, self.template_name, {'form': form})
-        return render(request, self.template_name, {'form': form})
+            return authUser(request, username, password, self.template_name, {'form': form, 'email': request.user.email, 'role': role})
+        return render(request, self.template_name, {'form': form, 'email': request.user.email, 'role': role})
 
     def processToken(self, request, usernameb64, token):
         try:
@@ -394,19 +393,28 @@ class UserForgotPassword(View):
 
 class UserAccount(View):
     template_name = 'account.html'
+    form_class = AccountForm
 
     def get(self, request):
-        form = UserForm(request.user)
-        return render(request, self.template_name, {'user': request.user, 'role': request.user.groups.all()[0].name})
+        form = self.form_class(instance=request.user)
+        return render(request, self.template_name, {'form': form, 'role': request.user.groups.all()[0].name})
 
     def post(self, request):
-        fname = request.POST.get('first_name')
-        password = request.POST.get('last_name')
-        fname = request.POST.get('first_name')
-        password = request.POST.get('last_name')
-        fname = request.POST.get('first_name')
-        password = request.POST.get('last_name')
-        pass
+        form = self.form_class(request.POST, instance=request.user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            for changedData in form.changed_data:
+                if changedData == "password":
+                    if form.cleaned_data['password'] != "":
+                        new_password = form.cleaned_data['password']
+                        user.set_password(new_password)
+                        user.save()
+                        user = authenticate(username=user.username, password=new_password)
+                        login(request, user)
+                elif changedData != "confirm_password":
+                    user.save(update_fields=[changedData])
+            return render(request, self.template_name, {'form': form, 'role': request.user.groups.all()[0].name})
+        return render(request, self.template_name, {'form': form, 'role': request.user.groups.all()[0].name})
 
 
 def authUser(request, username, password, temp_name, data={}):
