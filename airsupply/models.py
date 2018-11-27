@@ -327,6 +327,7 @@ class DroneLoad(models.Model):
     def emailCM(self, request, order):
         current_site = get_current_site(request)
         user = order.clinicManager.user
+        pdf = order.download_shipping()
         message = render_to_string('email-templates/order-dispatched.html', {
             'user': user, 'domain': current_site.domain,
             'order': order,
@@ -334,6 +335,7 @@ class DroneLoad(models.Model):
         mail_subject = 'Your Order has been dispatched!'
         to_email = user.email
         email = EmailMessage(mail_subject, message, to=[to_email])
+        email.attach('shipping label', pdf.content, 'application/pdf')
         email.send()
 
 

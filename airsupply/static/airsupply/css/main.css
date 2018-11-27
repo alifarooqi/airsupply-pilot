@@ -2844,7 +2844,7 @@ h2.title {
   background: rgba(100, 100, 100, 0.1);
 }
 
-.error-msg{
+.errorlist{
   font-size: 12px;
   color: red;
   padding-left: 10px;
