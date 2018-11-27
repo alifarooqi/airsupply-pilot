@@ -38,7 +38,7 @@
                                     {% if order.status == 'Queued for Processing' %}
                                         <a href="{% url 'airsupply:cancel_order' order.id %}" class="btn btn-default">Cancel Order</a>
                                     {% elif order.status == 'Dispatched' %}
-                                        <a href="{% url 'airsupply:receive_order' %}" class="btn btn-default">Received Order</a>
+                                        <a href="{% url 'airsupply:receive_order' order.id %}" class="btn btn-default">Received Order</a>
                                     {% endif %}
                                 </td>
                                 <td class="order_date">

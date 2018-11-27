@@ -251,7 +251,7 @@ def get_itinerary(request, pk):
 @user_passes_test(disp_checker)
 def dispatch(request, pk):
     dl = DroneLoad.objects.get(pk=pk)
-    dl.dispatch()
+    dl.dispatch(request)
     return redirect('airsupply:dispatch_view')
 
 
