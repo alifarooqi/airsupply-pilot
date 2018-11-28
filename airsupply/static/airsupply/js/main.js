@@ -38,6 +38,20 @@ var BrowsePage = {
 
 			return false;
 		});
+
+		$('.cart_quantity_up').click((e)=>{
+			let $target = $(e.target);
+            let input = $target.next("input");
+            var currentVal = parseInt(input.val());
+            input.val(currentVal + 1);
+		});
+		$('.cart_quantity_down').click((e)=>{
+			let $target = $(e.target);
+            let input = $target.prev("input");
+            var currentVal = parseInt(input.val());
+            if (currentVal > 0)
+            	input.val(currentVal - 1);
+		});
 	}
 };
 
