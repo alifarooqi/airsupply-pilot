@@ -15,6 +15,8 @@ from .tokens import send_new_password
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponse
+from django.dispatch import receiver
+
 
 #debugging:
 import logging
@@ -90,7 +92,7 @@ class CartView(CMCheck, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        items = Order.objects.get(status=Order.CART).items.all()
+        items = Cart.objects.get(clinicManager=self.request.user.clinicmanager, status=Order.CART).items.all()
         itemWeights = {}
         sum = 0
         for item in items:
@@ -133,7 +135,7 @@ class OrderView(CMCheck, generic.ListView):
     context_object_name = 'all_orders'
 
     def get_queryset(self):
-        return Order.objects.exclude(status=Order.CART)
+        return Order.objects.exclude(status=Order.CART).filter(clinicManager=self.request.user.clinicmanager)
 
 
 @user_passes_test(cm_checker)
@@ -184,6 +186,48 @@ def receiveOrder(request, pk):
     receivingOrder = Order.objects.get(id=pk)
     receivingOrder.update_status("Delivered")
     return redirect("airsupply:my_orders")
+
+
+# Warehouse Personnel
+class PriorityQueueView(WPCheck, generic.ListView):
+    template_name = 'warehouse-personnel/priority-queue.html'
+    context_object_name = 'all_orders'
+
+    def get_queryset(self):
+        order = {
+            "High": 1,
+            "Medium": 2,
+            "Low": 3
+        }
+        orderedList = sorted(Order.objects.filter(status__in=[Order.QP, Order.PW]), key=lambda n: (order[n.priority], n.timeOrdered))
+        return orderedList
+
+
+@user_passes_test(wp_checker)
+def order_processed(request, pk):
+    order = Order.objects.get(pk=pk)
+    order.update_status(Order.QD)
+    return redirect('airsupply:priority_queue')
+
+@user_passes_test(wp_checker)
+def processing_order(request, pk):
+    try:
+        order = Order.objects.get(pk=pk)
+        order.update_status("Processing by Warehouse")
+
+    except(KeyError, Item.DoesNotExist):
+        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
+    else:
+        return JsonResponse({'success': True})
+
+
+def download_shipping(request, pk):
+    try:
+        order = Order.objects.get(pk=pk)
+    except(KeyError, Item.DoesNotExist):
+        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
+    else:
+        return order.download_shipping()
 
 
 # Dispatcher
@@ -253,47 +297,6 @@ def dispatch(request, pk):
     dl = DroneLoad.objects.get(pk=pk)
     dl.dispatch()
     return redirect('airsupply:dispatch_view')
-
-
-# Warehouse Personnel
-class PriorityQueueView(WPCheck, generic.ListView):
-    template_name = 'warehouse-personnel/priority-queue.html'
-    context_object_name = 'all_orders'
-
-    def get_queryset(self):
-        order = {
-            "High": 1,
-            "Medium": 2,
-            "Low": 3
-        }
-        orderedList = sorted(Order.objects.filter(status__in=[Order.QP, Order.PW]), key=lambda n: (order[n.priority], n.timeOrdered))
-        return orderedList
-
-@user_passes_test(wp_checker)
-def order_processed(request, pk):
-    order = Order.objects.get(pk=pk)
-    order.update_status(Order.QD)
-    return redirect('airsupply:priority_queue')
-
-@user_passes_test(wp_checker)
-def processing_order(request, pk):
-    try:
-        order = Order.objects.get(pk=pk)
-        order.update_status("Processing by Warehouse")
-
-    except(KeyError, Item.DoesNotExist):
-        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
-    else:
-        return JsonResponse({'success': True})
-
-
-def download_shipping(request, pk):
-    try:
-        order = Order.objects.get(pk=pk)
-    except(KeyError, Item.DoesNotExist):
-        return JsonResponse({'success': False, 'error_message': 'Order does not exist'})
-    else:
-        return order.download_shipping()
 
 
 # User
