@@ -254,7 +254,7 @@ class DroneLoad(models.Model):
             distance = InterPlaceDistance.objects.filter(fromLocation=l1,toLocation=l2)
             if not distance:
                 distance =  InterPlaceDistance.objects.filter(fromLocation=l2,toLocation=l1)
-            print("diatance",distance)
+            print("distance",distance)
 
             return distance[0].distance
 
