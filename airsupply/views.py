@@ -65,9 +65,13 @@ class BrowseView(CMCheck, generic.ListView):
 
     def get_queryset(self):
         if self.kwargs.get('catID'):
-            return Item.objects.filter(category=Category.objects.get(id=self.kwargs.get('catID')))
+            all_items = Item.objects.filter(category=Category.objects.get(id=self.kwargs.get('catID')))
+            all_items.categorized = True
+            return all_items
         elif self.request.GET.get('itemDesc'):
-            return Item.objects.filter(description__contains=self.request.GET.get('itemDesc'))
+            all_items = Item.objects.filter(description__contains=self.request.GET.get('itemDesc'))
+            all_items.categorized = True
+            return all_items
         else:
             return Item.objects.all()
 

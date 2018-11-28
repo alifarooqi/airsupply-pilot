@@ -45,7 +45,9 @@
 				<div class="col-sm-9 padding-right">
 					<div class="features_items"><!--features_items-->
 						<h2 class="title text-center">Medical Supplies</h2>
-
+                        {% if all_items.categorized %}
+                            <a href="{% url "airsupply:browse" %}" class="btn btn-default clr-filter-btn">Clear Filter</a>
+                        {% endif %}
                         {% for item in all_items %}
 						<div class="product-wrapper">
 							<div class="col-sm-3" style="text-align: center;">
