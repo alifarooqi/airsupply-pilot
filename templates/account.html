@@ -3,6 +3,16 @@
 Account
 {% endblock %}
 
+{% block navbar %}
+    {% if role == "Clinic Manager" %}
+        {% include 'clinic-manager/navbar.html' %}
+    {% elif role == "Warehouse Personnel" %}
+        {% include 'warehouse-personnel/navbar.html' %}
+     {% elif role == "Dispatcher" %}
+        {% include 'dispatcher/navbar.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block body %}
 	<section id="register-form"><!--form-->
 		<div class="container">
