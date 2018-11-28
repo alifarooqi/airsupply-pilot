@@ -22,7 +22,7 @@ account_activation_token = TokenGenerator()
 def send_activation_link(request, id):
     current_site = get_current_site(request)
     user = User.objects.get(pk=id)
-    message = render_to_string('acc_active_email.html', {
+    message = render_to_string('email-templates/acc_active_email.html', {
         'user': user, 'domain': current_site.domain,
         'username': urlsafe_base64_encode(force_bytes(user.username)).decode(),
         'token': account_activation_token.make_token(user),
@@ -38,7 +38,7 @@ def send_new_password(request, user):
     password = User.objects.make_random_password()
     user.set_password(password)
     user.save()
-    message = render_to_string('pass-reset.html', {
+    message = render_to_string('email-templates/pass-reset.html', {
         'user': user, 'domain': current_site.domain,
         'password': password,
     })

@@ -9,8 +9,9 @@ from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-
-
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 
 
 #debugging:
@@ -208,10 +209,10 @@ class DroneLoad(models.Model):
     def __str__(self):
         return str(self.id) #+ ": "+str(self.orders.count())+" orders"
 
-    def dispatch(self):
+    def dispatch(self, request):
         all_orders = self.orders.all()
         for order in all_orders:
-            #emailClinicManager
+            self.emailCM(request, order)
             order.update_status(Order.DIS)
         self.dispatched = self.TRUE
         self.save()
@@ -295,3 +296,20 @@ class DroneLoad(models.Model):
 
     def add_order(self, order):
         self.orders.add(order)
+        self.save()
+
+    def emailCM(self, request, order):
+        current_site = get_current_site(request)
+        user = order.clinicManager.user
+        pdf = order.download_shipping()
+        message = render_to_string('email-templates/order-dispatched.html', {
+            'user': user, 'domain': current_site.domain,
+            'order': order,
+        })
+        mail_subject = 'Your Order has been dispatched!'
+        to_email = user.email
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.attach('shipping label', pdf.content, 'application/pdf')
+        email.send()
+
+
