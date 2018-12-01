@@ -254,11 +254,13 @@ class DroneLoad(models.Model):
                     list1[l], list1[i] = list1[i], list1[l] # backtrack
 
         def calcDistance(l1, l2):
-            print("places", l1, l2)
+            #print("places", l1, l2)
+            if l1 == l2:
+                return 0
             distance = InterPlaceDistance.objects.filter(fromLocation=l1,toLocation=l2)
             if not distance:
                 distance =  InterPlaceDistance.objects.filter(fromLocation=l2,toLocation=l1)
-            print("distance",distance)
+            #print("distance",distance)
 
             return distance[0].distance
 
