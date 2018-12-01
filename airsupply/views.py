@@ -104,6 +104,7 @@ class CartView(CMCheck, generic.ListView):
         context['weights'] = itemWeights
         context['totalWeight'] = sum
         context['ordered'] = "FALSE"
+        context['order_id'] = Cart.objects.get(clinicManager=self.request.user.clinicmanager, status=Order.CART).pk
         return context
 
 
@@ -131,6 +132,9 @@ def cart_add(request):
         else:
             return JsonResponse({'success': False, 'error_message': 'Cart weight limit exceeded'})
 
+def delete_item(request, order_pk, item_pk):
+    Cart.objects.get(id=order_pk).items.get(id=item_pk).delete()
+    return redirect('airsupply:cart');
 
 class OrderView(CMCheck, generic.ListView):
     template_name = 'clinic-manager/view-orders.html'
@@ -171,6 +175,7 @@ class OrderDetailView(CMCheck, generic.ListView):
         context['totalWeight'] = sum
         context['ordered'] = "TRUE"
         context['priority'] = order.priority
+        context['date'] = order.timeOrdered
 
         return context
 

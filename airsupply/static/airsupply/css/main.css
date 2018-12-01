@@ -1762,10 +1762,11 @@ h2.title {
 }
 
 
-.cart_delete  {
+.cart_delete {
   display: block;
   margin-right: -12px;
   overflow: hidden;
+  padding: 0 10px !important;
 }
 
 
@@ -1774,6 +1775,10 @@ h2.title {
   color: #FFFFFF;
   padding: 5px 7px;
   font-size: 16px
+}
+
+.cart_priority_selector{
+    margin: 10px 0 5px -3px;
 }
 
 .cart_delete a:hover {
@@ -2865,3 +2870,8 @@ h2.title {
   background: #fe151f;
   color: #FFFFFF;
 }
+
+.quantity, .cart_quantity{
+    text-align: center;
+}
+
