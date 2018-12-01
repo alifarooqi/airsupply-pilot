@@ -12,6 +12,7 @@ from xhtml2pdf import pisa
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from itertools import permutations
 
 
 #debugging:
