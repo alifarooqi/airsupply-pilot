@@ -274,7 +274,7 @@ class DispatchView(DispCheck, generic.ListView):
             sum = 0.0
             for orders in dl.orders.all():
                 sum += float(orders.totalWeight)
-            dlWeights[dl] = sum
+            dlWeights[dl] = round(sum, 2)
         context['dlWeights'] = dlWeights
         return context
 

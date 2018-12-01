@@ -305,14 +305,17 @@ class DroneLoad(models.Model):
         orders = self.orders.all()
         places = []
         newPlaces = []
+
         p = Place.objects.get(name="Queen Mary Hospital Drone Port")
         for order in orders:
-            places.append(order.clinicManager.clinic)
-            orderDict[order.clinicManager.clinic] = order
-        string = convert2string(places,placeDict)
+            newClinic = order.clinicManager.clinic
+            if newClinic not in places:
+                places.append(order.clinicManager.clinic)
+                orderDict[order.clinicManager.clinic] = order
+        string = convert2string(places, placeDict)
         perms = [''.join(p) for p in permutations(string)]
-        path = minDistance(perms,p,placeDict,orderDict)
-        names = string2Names(path,placeDict)
+        path = minDistance(perms, p, placeDict, orderDict)
+        names = string2Names(path, placeDict)
         for name in names:
             for place in places:
                 if place.name == name:
