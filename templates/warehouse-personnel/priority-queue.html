@@ -43,7 +43,9 @@
                                     <p class="cart_total_price">{{ order.totalWeight }}kg</p>
                                 </td>
                                 <td class="cart_total">
+                                    {% if forloop.first %}
                                     <button class="btn btn-default process-order-btn">Process this Order</button>
+                                    {% endif %}
                                 </td>
                             </tr>
                             <tr>
