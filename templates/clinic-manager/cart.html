@@ -28,8 +28,10 @@
 							<td class="description"></td>
 							<td class="price">Weight</td>
 							<td class="quantity">Quantity</td>
-							<td class="total">Total</td>
+							<td class="total">Total Weight</td>
+                            {% if ordered == 'FALSE' %}
 							<td></td>
+                            {% endif %}
 						</tr>
 					</thead>
 					<tbody>
@@ -46,18 +48,16 @@
                                     <p>{{ item.item.weight }}</p>
                                 </td>
                                 <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href="javascript:void(0)"> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="{{ item.quantity }}" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href="javascript:void(0)"> - </a>
-                                    </div>
+                                    <p>{{ item.quantity }}</p>
                                 </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">{{ weights|get_item:item }}</p>
                                 </td>
+                                {% if ordered == 'FALSE' %}
                                 <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
+                                    <a class="cart_quantity_delete" href="{% url 'airsupply:remove_item' order_id item.id %}"><i class="fa fa-times"></i></a>
                                 </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
 					</tbody>
@@ -69,19 +69,20 @@
 				<div class="total_area">
                     {% if ordered == 'FALSE' %}
 					    <span style="float:left;">Priority:</span>
-                        <select name="priority" form="checkoutForm">
+                        <select name="priority" form="checkoutForm" class="cart_priority_selector">
                             <option value="High">High</option>
                             <option value="Medium">Medium</option>
                             <option value="Low">Low</option>
                         </select>
-                        <p>Total Weight: {{ totalWeight }}</p>
+                        <p>Cart Total Weight: {{ totalWeight }}</p>
                         <form action="{% url 'airsupply:cart_checkout' %}" method="post" id="checkoutForm">
                             {% csrf_token %}
                             <input class="btn btn-default check_out" type="submit" value="Checkout Cart">
                         </form>
                     {% else %}
+                        <span style="float:left;">Date: {{ date }}</span><br>
                         <span style="float:left;">Priority: {{ priority }}</span><br>
-                        <p>Total Weight: {{ totalWeight }}</p>
+                        <p>Cart Total Weight: {{ totalWeight }}</p>
                     {% endif %}
 				</div>
 

@@ -23,6 +23,7 @@ urlpatterns = [
     path('cart/add/', views.cart_add, name='cart_add'),  # Change main.js too if URL is changed
     path('cart/checkout/', views.cart_checkout, name='cart_checkout'),
     re_path(r'order/(?P<pk>[0-9]+)/$', views.OrderDetailView.as_view(), name='view_order_details'),
+    re_path(r'remove_item/(?P<order_pk>[0-9]+)/(?P<item_pk>[0-9]+)/$', views.delete_item, name='remove_item'),
 
     #dispatcher
     path('dispatch/', views.DispatchView.as_view(), name='dispatch_view'),
