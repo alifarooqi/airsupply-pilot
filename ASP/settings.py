@@ -124,8 +124,8 @@ STATIC_URL = '/static/'
 # Email shizzle
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'saadhku2@gmail.com'
-EMAIL_HOST_PASSWORD = 'saadhku123'
+EMAIL_HOST_USER = 'comp3297groupfive@gmail.com'
+EMAIL_HOST_PASSWORD = 'groupfive3297'
 EMAIL_PORT = 587
 
 

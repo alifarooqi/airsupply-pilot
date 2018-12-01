@@ -87,7 +87,6 @@ class BrowseView(CMCheck, generic.ListView):
 
 
 class CartView(CMCheck, generic.ListView):
-    permission_required = 'cart.change_cart'
     template_name = 'clinic-manager/cart.html'
     context_object_name = 'all_items'
 
@@ -138,7 +137,6 @@ def delete_item(request, order_pk, item_pk):
     return redirect('airsupply:cart');
 
 class OrderView(CMCheck, generic.ListView):
-    permission_required = 'order.delete_order'
     template_name = 'clinic-manager/view-orders.html'
     context_object_name = 'all_orders'
 
@@ -148,9 +146,7 @@ class OrderView(CMCheck, generic.ListView):
 
 @user_passes_test(cm_checker)
 def cart_checkout(request):
-
     priority = request.POST['priority']
-
     cart = Cart.objects.get(clinicManager=request.user.clinicmanager, status=Order.CART)
     if cart.checkout(priority):
         Cart.objects.create_cart(request.user.clinicmanager)
@@ -160,7 +156,6 @@ def cart_checkout(request):
 
 
 class OrderDetailView(CMCheck, generic.ListView):
-    permission_required = 'order.change_order'
     template_name = 'clinic-manager/cart.html'
     context_object_name = 'all_items'
 

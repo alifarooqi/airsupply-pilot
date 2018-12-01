@@ -16,7 +16,7 @@ class UserForm(forms.ModelForm):
         confirm_password = self.cleaned_data.get("confirm_password")
         if password != confirm_password:
             raise forms.ValidationError(
-                "Passwords do no match"
+                "Passwords do not match"
             )
         return confirm_password
 
@@ -42,6 +42,6 @@ class AccountForm(forms.ModelForm):
         confirm_password = self.cleaned_data.get("confirm_password")
         if password != "" and password != confirm_password:
             raise forms.ValidationError(
-                "Passwords do no match"
+                "Passwords do not match"
             )
         return confirm_password

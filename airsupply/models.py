@@ -45,6 +45,9 @@ class ClinicManager(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     clinic = models.ForeignKey(Place, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.username + " - " + self.clinic.name
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -254,11 +257,11 @@ class DroneLoad(models.Model):
             distance = InterPlaceDistance.objects.filter(fromLocation=l1,toLocation=l2)
             if not distance:
                 distance =  InterPlaceDistance.objects.filter(fromLocation=l2,toLocation=l1)
-            print("diatance",distance)
+            print("distance",distance)
 
             return distance[0].distance
 
-        def minDistance(perms,p,placeDict):
+        def minDistance(perms,p,placeDict,orderDict):
             minimum = float("inf")
             path = ""
             for perm in perms:
@@ -272,20 +275,40 @@ class DroneLoad(models.Model):
                         totalDistance += calcDistance(placeDict[perm[i]],placeDict[perm[i+1]])
                 if totalDistance < minimum :
                     minimum = totalDistance
-                path = perm
+                    path = perm
+                    #print("minimum ",minimum," path ",string2Names(path,placeDict))
+                elif totalDistance == minimum :
+                    score = {}
+                    score[perm] = scoreCalculate(perm,placeDict,orderDict)
+                    score[path] = scoreCalculate(path,placeDict,orderDict)
+                    if score[perm] > score[path]:
+                        minimum = totalDistance
+                        path = perm                  
             return path
 
+        def scoreCalculate(perm,placeDict,orderDict):
+            score = 0
+            for i in range(len(perm)):
+                if orderDict[placeDict[perm[i]]].priority == "High":
+                    score += pow(10,len(perm)-1-i)*3
+                if orderDict[placeDict[perm[i]]].priority == "Medium":
+                    score += pow(10,len(perm)-1-i)*2
+                if orderDict[placeDict[perm[i]]].priority == "Low":
+                    score += pow(10,len(perm)-1-i)*1
+            return score            
+
         placeDict = {}
-        perms = []
+        orderDict = {}
         orders = self.orders.all()
         places = []
         newPlaces = []
         p = Place.objects.get(name="Queen Mary Hospital Drone Port")
         for order in orders:
             places.append(order.clinicManager.clinic)
+            orderDict[order.clinicManager.clinic] = order
         string = convert2string(places,placeDict)
-        permute(string,0,len(string)-1,perms)
-        path = minDistance(perms,p,placeDict)
+        perms = [''.join(p) for p in permutations(string)]
+        path = minDistance(perms,p,placeDict,orderDict)
         names = string2Names(path,placeDict)
         for name in names:
             for place in places:
