@@ -254,21 +254,17 @@ class DispatchView(DispCheck, generic.ListView):
         ordered_list = sorted(Order.objects.filter(status=Order.QD),
                               key=lambda n: (order_priority[n.priority], n.timeOrdered))
 
-        dlWeight = 0.0
-        newDL = DroneLoad()
-        newDL.save()
-        for order in ordered_list:
-            dlWeight += float(order.totalWeight)
-            if dlWeight < DroneLoad.DRONE_LIMIT:
-                newDL.add_order(order)
-            else:
-                newDL.save()
-                newDL = DroneLoad()
-                newDL.save()
-                newDL.add_order(order)
-                dlWeight = float(order.totalWeight)
-        if newDL.orders.count():
+        while len(ordered_list) > 0:
+            dlWeight = 0.0
+            newDL = DroneLoad()
             newDL.save()
+            for order in list(ordered_list):
+                if dlWeight + float(order.totalWeight) < DroneLoad.DRONE_LIMIT:
+                    newDL.add_order(order)
+                    dlWeight += float(order.totalWeight)
+                    ordered_list.remove(order)
+            if newDL.orders.count():
+                newDL.save()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
