@@ -259,9 +259,9 @@ class DispatchView(DispCheck, generic.ListView):
             newDL = DroneLoad()
             newDL.save()
             for order in list(ordered_list):
-                if dlWeight + float(order.totalWeight) < DroneLoad.DRONE_LIMIT:
+                if dlWeight + float(order.totalWeight) + 1.2 < DroneLoad.DRONE_LIMIT:
                     newDL.add_order(order)
-                    dlWeight += float(order.totalWeight)
+                    dlWeight += float(order.totalWeight) + 1.2
                     ordered_list.remove(order)
             if newDL.orders.count():
                 newDL.save()
