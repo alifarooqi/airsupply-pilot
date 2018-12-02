@@ -132,9 +132,11 @@ def cart_add(request):
         else:
             return JsonResponse({'success': False, 'error_message': 'Cart weight limit exceeded'})
 
+
 def delete_item(request, order_pk, item_pk):
     Cart.objects.get(id=order_pk).items.get(id=item_pk).delete()
     return redirect('airsupply:cart');
+
 
 class OrderView(CMCheck, generic.ListView):
     template_name = 'clinic-manager/view-orders.html'
