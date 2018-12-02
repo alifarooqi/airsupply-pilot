@@ -16,7 +16,7 @@ A Django app build for Hospital Authority (Hong Kong) as part of our Software En
 `python manage.py run`
 
 ## Other Contributors:
-1. [Saad M. A. Ghani] (https://github.com/Saadmaghani)
-2. [Saksham Arora] (https://github.com/sakshamm10)
-3. [Abeer Arora] (https://github.com/AbeerArora123)
+1. [Saad M. A. Ghani](https://github.com/Saadmaghani)
+2. [Saksham Arora](https://github.com/sakshamm10)
+3. [Abeer Arora](https://github.com/AbeerArora123)
 4. Nick Chan
