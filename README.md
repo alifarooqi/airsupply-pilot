@@ -4,6 +4,9 @@
 
 A Django app build for Hospital Authority (Hong Kong) as part of our Software Engineering course project.
 
+## Requirements
+* Python 3
+* Django
 ## Installation
 
 1. Download dependencies:
